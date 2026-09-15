@@ -394,6 +394,119 @@
   }
   #toast.show{ opacity: 1; transform: translate(-50%, 0); }
 
+  /* ================= 对话框 ================= */
+  .modal-layer{
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(18,26,44,.34);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    animation: overlay-in .18s ease-out both;
+  }
+  .modal-layer.closing{ animation: overlay-out .16s ease-in both; }
+  @keyframes overlay-in{ from{ opacity: 0; } to{ opacity: 1; } }
+  @keyframes overlay-out{ from{ opacity: 1; } to{ opacity: 0; } }
+
+  .dialog{
+    width: min(420px, 100%);
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    box-shadow: 0 24px 60px rgba(15,25,45,.28), 0 2px 8px rgba(15,25,45,.10);
+    animation: dialog-in .26s cubic-bezier(.16,.9,.3,1.12) both;
+    transform-origin: center 68%;
+  }
+  .modal-layer.closing .dialog{
+    animation: dialog-out .16s ease-in both;
+  }
+  @keyframes dialog-in{
+    from{ opacity: 0; transform: translateY(14px) scale(.94); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes dialog-out{
+    from{ opacity: 1; transform: translateY(0) scale(1); }
+    to{ opacity: 0; transform: translateY(6px) scale(.97); }
+  }
+
+  .dg-head{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .dg-ico{
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    background: #e9f2ff;
+    color: var(--accent);
+  }
+  .dg-ico.warn{ background: #fff4e0; color: #c47b16; }
+  .dg-ico.danger{ background: #ffe8e8; color: #d33f3f; }
+  .dg-title{
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e2a44;
+    letter-spacing: .3px;
+  }
+  .dg-msg{
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #5b6579;
+    margin: 0 0 16px;
+    word-break: break-word;
+  }
+  .dg-msg b{ color: #22304a; }
+  .dg-input{
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d3d8e0;
+    border-radius: 9px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #22304a;
+    background: #f8fafc;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .dg-input:focus{
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(47,111,219,.14);
+  }
+  .dg-input.shake{ animation: shake .3s ease; }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0); }
+    20%{ transform: translateX(-6px); }
+    45%{ transform: translateX(5px); }
+    70%{ transform: translateX(-3px); }
+  }
+  .dg-acts{
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+  }
+  .dg-acts .btn{ min-width: 84px; padding: 8px 14px; }
+  .btn.danger{
+    background: #e04a4a;
+    border-color: #e04a4a;
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn.danger:hover:not(:disabled){ background: #c93c3c; border-color: #c93c3c; }
+
   /* ================= 窄屏 ================= */
   @media (max-width: 900px){
     .sidebar{
@@ -412,7 +525,7 @@
 
   @media print {
     body{ background:#fff; padding:0; }
-    .sidebar, .backdrop, .toolbar, #toast{ display:none !important; }
+    .sidebar, .backdrop, .toolbar, #toast, #modal{ display:none !important; }
     .main{ margin-left: 0; padding: 0; display: block; }
     .paper{ box-shadow:none; padding:0; }
   }
@@ -476,6 +589,7 @@
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="modal"></div>
 
 <script>
 (function () {
@@ -507,6 +621,7 @@
   const menuBtn    = document.getElementById('menuBtn');
   const backdrop   = document.getElementById('backdrop');
   const toastEl    = document.getElementById('toast');
+  const modalEl    = document.getElementById('modal');
   const storageWarn= document.getElementById('storageWarn');
 
   let rows = 40;
@@ -657,6 +772,129 @@
     toastEl.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { toastEl.classList.remove('show'); }, 1900);
+  }
+
+  /* ==================================================================
+     自定义对话框（替代原生 confirm / prompt）
+     ================================================================== */
+  let dlgOpen = false;
+
+  // opts: { title, message, icon:'info'|'warn'|'danger', confirmText, cancelText,
+  //         danger:Boolean, input:{ value, placeholder } }
+  // 返回 Promise：确认 → true（或输入框字符串）；取消 → false
+  function openDialog(opts) {
+    opts = opts || {};
+    if (dlgOpen) return Promise.resolve(false);
+    dlgOpen = true;
+
+    const iconKind = opts.icon || (opts.danger ? 'danger' : 'info');
+    const iconChar = iconKind === 'danger' ? '!' : (iconKind === 'warn' ? '!' : 'i');
+
+    const layer = document.createElement('div');
+    layer.className = 'modal-layer';
+    layer.innerHTML =
+      '<div class="dialog" role="dialog" aria-modal="true">' +
+        '<div class="dg-head">' +
+          '<div class="dg-ico ' + iconKind + '">' + iconChar + '</div>' +
+          '<div class="dg-title"></div>' +
+        '</div>' +
+        '<p class="dg-msg"></p>' +
+        (opts.input ? '<input class="dg-input" type="text" autocomplete="off">' : '') +
+        '<div class="dg-acts">' +
+          '<button class="btn" type="button" data-act="cancel"></button>' +
+          '<button class="btn ' + (opts.danger ? 'danger' : 'primary') + '" type="button" data-act="ok"></button>' +
+        '</div>' +
+      '</div>';
+
+    const dlg      = layer.firstChild;
+    const titleEl  = dlg.querySelector('.dg-title');
+    const msgEl    = dlg.querySelector('.dg-msg');
+    const okBtn    = dlg.querySelector('[data-act=ok]');
+    const cancelBtn= dlg.querySelector('[data-act=cancel]');
+    const inputEl  = dlg.querySelector('.dg-input');
+
+    titleEl.textContent = opts.title || '提示';
+    msgEl.innerHTML = opts.message || '';
+    okBtn.textContent = opts.confirmText || '确定';
+    cancelBtn.textContent = opts.cancelText || '取消';
+    if (inputEl) {
+      inputEl.value = (opts.input && opts.input.value) || '';
+      inputEl.placeholder = (opts.input && opts.input.placeholder) || '';
+    }
+
+    modalEl.appendChild(layer);
+
+    return new Promise(function (resolve) {
+      let settled = false;
+      let prevFocus = document.activeElement;
+
+      function cleanup() {
+        document.removeEventListener('keydown', onKey, true);
+        layer.classList.add('closing');
+        setTimeout(function () {
+          if (layer.parentNode) layer.parentNode.removeChild(layer);
+          dlgOpen = false;
+          // 只在原焦点还挂在文档上时还原，避免聚焦到已被重建的单元格
+          if (prevFocus && prevFocus.isConnected && prevFocus.focus) {
+            try { prevFocus.focus(); } catch (e) {}
+          }
+        }, 160);
+      }
+
+      function done(val) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve(val);
+      }
+
+      function ok() {
+        if (inputEl) {
+          const v = inputEl.value.trim();
+          if (!v) {
+            inputEl.classList.remove('shake');
+            void inputEl.offsetWidth;           // 触发重排，重放动画
+            inputEl.classList.add('shake');
+            inputEl.focus();
+            return;
+          }
+          done(v);
+          return;
+        }
+        done(true);
+      }
+
+      function onKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+        else if (e.key === 'Enter') {
+          // 输入法组词中不提交
+          if (e.isComposing || e.keyCode === 229) return;
+          e.preventDefault(); e.stopPropagation(); ok();
+        }
+      }
+
+      okBtn.addEventListener('click', ok);
+      cancelBtn.addEventListener('click', function () { done(false); });
+      layer.addEventListener('mousedown', function (e) {
+        if (e.target === layer) done(false);
+      });
+      document.addEventListener('keydown', onKey, true);
+
+      requestAnimationFrame(function () {
+        if (inputEl) { inputEl.focus(); if (inputEl.select) inputEl.select(); }
+        else okBtn.focus();
+      });
+    });
+  }
+
+  function alertDialog(title, message, icon) {
+    return openDialog({
+      title: title,
+      message: message,
+      icon: icon || 'info',
+      cancelText: '知道了',
+      confirmText: '好的'
+    });
   }
 
   function setDrawer(open) {
@@ -920,10 +1158,18 @@
 
   // 切换/新建前处理未保存内容：已存档的自动落盘，未存档草稿需用户确认
   function guardUnsaved(actionLabel) {
-    if (!dirty) return true;
-    if (isSaved()) { autosave(); return true; }
-    if (countChars(state) === 0) return true;
-    return confirm('当前答题纸尚未保存，' + actionLabel + '后内容将会丢失，确定继续吗？');
+    if (!dirty) return Promise.resolve(true);
+    if (isSaved()) { autosave(); return Promise.resolve(true); }
+    if (countChars(state) === 0) return Promise.resolve(true);
+    return openDialog({
+      title: '尚未保存',
+      icon: 'warn',
+      message: '当前答题纸还没有保存，' + esc(actionLabel) + '后这份内容将会丢失。<br>' +
+               '建议先点「保存」留档，再' + esc(actionLabel) + '。',
+      cancelText: '返回保存',
+      confirmText: '仍要' + actionLabel,
+      danger: true
+    });
   }
 
   // 撤销历史按答题纸归档：切走时存起来，切回时恢复
@@ -972,18 +1218,7 @@
     }
   }
 
-  function savePaper(quiet) {
-    clearTimeout(saveTimer);
-    let name = nameInput.value.trim();
-    if (!name) {
-      if (quiet) return;
-      name = prompt('请为这张答题纸命名：', '申论练习 ' + fmtTime(Date.now()));
-      if (name === null) return;
-      name = name.trim();
-      if (!name) { toast('名称不能为空'); nameInput.focus(); return; }
-      nameInput.value = name;
-    }
-
+  function doSave(name) {
     let p = activeId ? findPaper(activeId) : null;
     if (!p) {
       p = buildCurrent(name);
@@ -1001,8 +1236,37 @@
       dirty = false;
       updateHeader();
       renderList();
-      if (!quiet) toast('已保存「' + p.name + '」');
+      toast('已保存「' + p.name + '」');
+      return true;
     }
+    return false;
+  }
+
+  function savePaper(quiet) {
+    clearTimeout(saveTimer);
+    let name = nameInput.value.trim();
+
+    if (name) { doSave(name); return; }
+
+    if (quiet) return;
+    openDialog({
+      title: '给答题纸起个名字',
+      icon: 'info',
+      message: '保存后可以在左侧记录里按名称查找、排序，方便日后复习。',
+      input: {
+        value: '申论练习 ' + fmtTime(Date.now()),
+        placeholder: '例如：2024 省考 A 卷 第三题'
+      },
+      confirmText: '保存',
+      cancelText: '取消'
+    }).then(function (val) {
+      if (!val) return;
+      const n = String(val).trim();
+      if (!n) return;
+      nameInput.value = n;
+      paperTitle.textContent = n;
+      doSave(n);
+    });
   }
 
   function loadPaper(id) {
@@ -1042,44 +1306,67 @@
   }
 
   function newPaper() {
-    if (!guardUnsaved('新建')) return;
+    guardUnsaved('新建').then(function (go) {
+      if (!go) return;
 
-    stashHistory();
+      stashHistory();
 
-    clearTimeout(saveTimer);
-    rows = parseInt(rowsInput.value, 10) || rows || 40;
-    state = new Array(rows * COLS).fill('');
-    activeId = null;
-    dirty = false;
+      clearTimeout(saveTimer);
+      rows = parseInt(rowsInput.value, 10) || rows || 40;
+      state = new Array(rows * COLS).fill('');
+      activeId = null;
+      dirty = false;
 
-    buildDOM();
-    restoreHistory(null);
-    skipNameDirty = true;
-    nameInput.value = '';
-    skipNameDirty = false;
+      buildDOM();
+      restoreHistory(null);
+      skipNameDirty = true;
+      nameInput.value = '';
+      skipNameDirty = false;
 
-    updateHeader();
-    renderList();
-    setDrawer(false);
-    focusCell(0);
-    toast('已新建空白答题纸，命名后点「保存」');
+      updateHeader();
+      renderList();
+      setDrawer(false);
+      focusCell(0);
+      toast('已新建空白答题纸，命名后点「保存」');
+    });
   }
 
   function deletePaper(id) {
     const p = findPaper(id);
     if (!p) return;
-    if (!confirm('确定删除「' + p.name + '」吗？删除后无法恢复。')) return;
 
-    papers = papers.filter(function (x) { return x.id !== id; });
-    if (activeId === id) {
-      activeId = null;
-      dirty = true;
-      setActive(-1);
-    }
-    persist();
-    updateHeader();
-    renderList();
-    toast('已删除「' + p.name + '」');
+    const isCurrent = (p.id === activeId);
+    openDialog({
+      title: '删除这份记录？',
+      icon: 'danger',
+      danger: true,
+      message: '将要删除 <b>「' + esc(p.name) + '」</b>（' + (p.wordCount || 0) + ' 字，' +
+               fmtTime(p.updatedAt) + '）。<br>删除后无法恢复。' +
+               (isCurrent ? '<br><br>它正是你当前正在编辑的这份，删除后画面会清空。' : ''),
+      confirmText: '删除',
+      cancelText: '取消'
+    }).then(function (okVal) {
+      if (!okVal) return;
+      papers = papers.filter(function (x) { return x.id !== id; });
+      if (activeId === id) {
+        stashHistory();
+        activeId = null;
+        dirty = false;
+        rows = parseInt(rowsInput.value, 10) || rows || 40;
+        state = new Array(rows * COLS).fill('');
+        buildDOM();
+        restoreHistory(null);
+        skipNameDirty = true;
+        nameInput.value = '';
+        skipNameDirty = false;
+        setActive(-1);
+        focusCell(0);
+      }
+      persist();
+      updateHeader();
+      renderList();
+      toast('已删除「' + p.name + '」');
+    });
   }
 
   /* ==================================================================
@@ -1201,8 +1488,11 @@
      导入 / 导出
      ================================================================== */
   function exportData() {
-    if (!papers.length) { toast('还没有可导出的记录'); return; }
-    if (dirty && activeId && findPaper(activeId)) autosave();
+    if (!papers.length) {
+      alertDialog('还没有可以导出的内容', '先在左侧保存至少一份答题纸，再导出备份文件。');
+      return;
+    }
+    if (dirty && isSaved()) autosave();
 
     const payload = {
       app: 'shenlun-answer-sheet',
@@ -1249,13 +1539,19 @@
   }
 
   function importData(file) {
+    if (!file) return;
+    if (!/\.json$/i.test(file.name || '') && file.type && file.type.indexOf('json') < 0) {
+      alertDialog('这个文件读不了', '请选择由本页「导出备份」生成的 <b>.json</b> 备份文件。', 'warn');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = function () {
       let payload;
       try {
         payload = JSON.parse(String(reader.result));
       } catch (e) {
-        toast('导入失败：文件不是有效的 JSON');
+        alertDialog('导入失败', '这个文件不是有效的 JSON，可能已损坏或选错了文件。', 'warn');
         return;
       }
       let arr = null;
@@ -1263,10 +1559,16 @@
       else if (payload && Array.isArray(payload.papers)) arr = payload.papers;
       else if (payload && typeof payload === 'object') arr = [payload];
 
-      if (!arr || !arr.length) { toast('导入失败：没有找到答题纸数据'); return; }
+      if (!arr || !arr.length) {
+        alertDialog('导入失败', '文件里没有找到任何答题纸数据。', 'warn');
+        return;
+      }
 
       const clean = arr.map(normalizeImported).filter(Boolean);
-      if (!clean.length) { toast('导入失败：数据格式不正确'); return; }
+      if (!clean.length) {
+        alertDialog('导入失败', '数据格式不正确，无法识别其中的答题纸。', 'warn');
+        return;
+      }
 
       // 同名去重（保留已有的，导入的加后缀）
       const used = {};
@@ -1284,7 +1586,9 @@
         toast('已导入 ' + clean.length + ' 份记录');
       }
     };
-    reader.onerror = function () { toast('导入失败：无法读取文件'); };
+    reader.onerror = function () {
+      alertDialog('导入失败', '读取文件时出错了，请重试或换一个文件。', 'warn');
+    };
     reader.readAsText(file);
   }
 
@@ -1443,21 +1747,35 @@
   });
 
   saveBtn.addEventListener('click', function () {
+    // 已经有名字就直接存档；否则弹窗补名字，由弹窗流程接管焦点
+    if (nameInput.value.trim()) focusCell(activeIdx < 0 ? 0 : activeIdx);
     savePaper();
-    focusCell(activeIdx < 0 ? 0 : activeIdx);
   });
 
   undoBtn.addEventListener('click', function () { undo(); gridEl.focus(); });
   redoBtn.addEventListener('click', function () { redo(); gridEl.focus(); });
 
   clearBtn.addEventListener('click', function () {
-    if (!confirm('确定要清空当前答题纸的全部内容吗？此操作可以用 Ctrl+Z 撤销。')) return;
-    const changes = [];
-    for (let i = 0; i < state.length; i++) {
-      if (state[i]) changes.push({ idx: i, ch: '' });
-    }
-    if (changes.length) applyChanges(changes);
-    focusCell(0);
+    const n = countChars(state);
+    if (!n) { toast('当前答题纸已经是空的'); return; }
+
+    openDialog({
+      title: '清空这张答题纸？',
+      icon: 'warn',
+      danger: true,
+      message: '将清除当前答题纸上的 <b>' + n + '</b> 个字，' +
+               '答题纸本身和名称都会保留。<br>清空之后可以用 <b>Ctrl + Z</b> 撤销。',
+      confirmText: '清空',
+      cancelText: '取消'
+    }).then(function (okVal) {
+      if (!okVal) return;
+      const changes = [];
+      for (let i = 0; i < state.length; i++) {
+        if (state[i]) changes.push({ idx: i, ch: '' });
+      }
+      if (changes.length) applyChanges(changes);
+      focusCell(0);
+    });
   });
 
   /* ---------------- 侧边栏 ---------------- */
@@ -1472,8 +1790,10 @@
     if (!item) return;
     const id = item.dataset.id;
     if (id === activeId) { setDrawer(false); focusCell(0); return; }
-    if (!guardUnsaved('切换答题纸')) return;
-    loadPaper(id);
+    guardUnsaved('切换答题纸').then(function (go) {
+      if (!go) return;
+      loadPaper(id);
+    });
   });
 
   searchInput.addEventListener('input', function () {
@@ -1509,6 +1829,7 @@
       if (e.key === 'Escape') setDrawer(false);
       return;
     }
+    if (dlgOpen) return;                 // 弹窗打开时不触发全局操作
     const k = (e.key || '').toLowerCase();
     if (k === 's') { e.preventDefault(); savePaper(); }
     else if (k === 'n' && e.shiftKey) { e.preventDefault(); newPaper(); }
