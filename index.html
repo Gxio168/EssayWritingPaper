@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>申论答题纸 · 每行25格</title>
+<style>
+  :root{
+    --cell: 36px;
+    --line: #c9cfd8;
+    --accent: #2f6fdb;
+    --accent-dark: #2456ab;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0;
+    padding: 20px 16px 60px;
+    background: #eef1f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .toolbar{
+    position: sticky;
+    top: 12px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: #fff;
+    padding: 10px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(20,30,60,.10);
+    margin-bottom: 18px;
+    font-size: 14px;
+    color: #333;
+    max-width: 100%;
+  }
+  .toolbar label{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .toolbar input[type=number]{
+    width: 72px;
+    padding: 5px 8px;
+    border: 1px solid #d3d8e0;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .toolbar input[type=number]:focus{ border-color: var(--accent); }
+  .btn{
+    padding: 6px 14px;
+    border: 1px solid #d3d8e0;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    font-family: inherit;
+  }
+  .btn:hover:not(:disabled){ background:#f2f5fa; border-color:#b9c3d1; }
+  .btn:active:not(:disabled){ transform: translateY(1px); }
+  .btn:disabled{ opacity: .4; cursor: not-allowed; }
+  .stat{
+    margin-left: auto;
+    color: #667;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hint{
+    font-size: 12px;
+    color: #889;
+    white-space: nowrap;
+  }
+
+  .paper{
+    background: #fff;
+    padding: 26px 30px 34px;
+    border-radius: 3px;
+    box-shadow: 0 8px 30px rgba(20,30,60,.13);
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .paper-title{
+    font-family: "Songti SC", "SimSun", "STSong", serif;
+    font-size: 17px;
+    letter-spacing: 6px;
+    color: #333;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e6ec;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #grid{
+    display: grid;
+    grid-template-columns: repeat(25, var(--cell));
+    grid-auto-rows: var(--cell);
+    width: max-content;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    background: #fff;
+  }
+  .cell{
+    position: relative;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .cell.active{
+    background: #e9f2ff;
+    box-shadow: inset 0 0 0 2px var(--accent);
+    z-index: 2;
+  }
+  .cell input{
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    font-family: "Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", serif;
+    font-size: calc(var(--cell) * 0.62);
+    line-height: var(--cell);
+    color: #1b1b1b;
+    caret-color: transparent;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .cell input::selection{ background: #cfe0ff; }
+
+  @media print {
+    body{ background:#fff; padding:0; }
+    .toolbar{ display:none; }
+    .paper{ box-shadow:none; padding:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <label>行数：<input type="number" id="rowsInput" min="1" max="200" value="40"></label>
+  <button class="btn" id="undoBtn" title="Ctrl + Z">↶ 撤销</button>
+  <button class="btn" id="redoBtn" title="Ctrl + Shift + Z / Ctrl + Y">↷ 重做</button>
+  <button class="btn" id="clearBtn">清空全部</button>
+  <span class="hint">插入模式：新字插入后，后面的字整体后移</span>
+  <span class="stat" id="stat">0 / 1000 字</span>
+</div>
+
+<div class="paper">
+  <h1 class="paper-title">申论答题纸</h1>
+  <div id="grid"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const COLS = 25;
+  const MAX_UNDO = 500;
+
+  const gridEl    = document.getElementById('grid');
+  const rowsInput = document.getElementById('rowsInput');
+  const statEl    = document.getElementById('stat');
+  const undoBtn   = document.getElementById('undoBtn');
+  const redoBtn   = document.getElementById('redoBtn');
+  const clearBtn  = document.getElementById('clearBtn');
+
+  let rows = 40;
+  let state = [];
+  let inputs = [];
+  let cellDivs = [];
+  let activeIdx = -1;
+  let composing = false;
+
+  const undoStack = [];
+  const redoStack = [];
+
+  /* ============ 构建 DOM ============ */
+  function buildDOM() {
+    gridEl.innerHTML = '';
+    inputs = [];
+    cellDivs = [];
+    activeIdx = -1;
+
+    const frag = document.createDocumentFragment();
+    const total = rows * COLS;
+
+    while (state.length < total) state.push('');
+
+    for (let i = 0; i < total; i++) {
+      const div = document.createElement('div');
+      div.className = 'cell';
+
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.autocomplete = 'off';
+      inp.spellcheck = false;
+      inp.setAttribute('autocorrect', 'off');
+      inp.setAttribute('autocapitalize', 'off');
+      inp.dataset.idx = i;
+      inp.value = state[i] || '';
+
+      div.appendChild(inp);
+      frag.appendChild(div);
+
+      inputs.push(inp);
+      cellDivs.push(div);
+    }
+
+    gridEl.appendChild(frag);
+    updateStat();
+    updateUndoButtons();
+  }
+
+  /* ============ 状态与撤销 ============ */
+  function applyChanges(changes) {
+    const records = [];
+    for (const c of changes) {
+      if (c.idx >= state.length) continue;
+      const prev = state[c.idx] || '';
+      if (prev === c.ch) continue;
+      records.push({ idx: c.idx, prev: prev, next: c.ch });
+      state[c.idx] = c.ch;
+      if (inputs[c.idx]) inputs[c.idx].value = c.ch;
+    }
+    if (!records.length) return;
+
+    undoStack.push(records);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+
+    updateStat();
+    updateUndoButtons();
+  }
+
+  function undo() {
+    if (!undoStack.length) return;
+    const records = undoStack.pop();
+    redoStack.push(records);
+
+    for (let i = records.length - 1; i >= 0; i--) {
+      const r = records[i];
+      state[r.idx] = r.prev;
+      if (inputs[r.idx]) inputs[r.idx].value = r.prev;
+    }
+    focusCell(records[0].idx);
+    updateStat();
+    updateUndoButtons();
+  }
+
+  function redo() {
+    if (!redoStack.length) return;
+    const records = redoStack.pop();
+    undoStack.push(records);
+
+    for (const r of records) {
+      state[r.idx] = r.next;
+      if (inputs[r.idx]) inputs[r.idx].value = r.next;
+    }
+    focusCell(records[records.length - 1].idx);
+    updateStat();
+    updateUndoButtons();
+  }
+
+  function updateUndoButtons() {
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+
+  function updateStat() {
+    const total = rows * COLS;
+    let n = 0;
+    for (let i = 0; i < total; i++) if (state[i]) n++;
+    statEl.textContent = n + ' / ' + total + ' 字';
+  }
+
+  /* ============ 焦点 ============ */
+  function setActive(idx) {
+    if (activeIdx === idx) return;
+    if (activeIdx >= 0 && cellDivs[activeIdx]) {
+      cellDivs[activeIdx].classList.remove('active');
+    }
+    activeIdx = idx;
+    if (idx >= 0 && cellDivs[idx]) {
+      cellDivs[idx].classList.add('active');
+    }
+  }
+
+  function focusCell(idx) {
+    if (!inputs.length) return;
+    if (idx < 0) idx = 0;
+    if (idx >= inputs.length) idx = inputs.length - 1;
+
+    const inp = inputs[idx];
+    inp.focus();
+    try { inp.setSelectionRange(0, inp.value.length); } catch (e) {}
+    setActive(idx);
+  }
+
+  /* ============ 核心：插入 / 删除 ============ */
+  // 在 idx 位置插入若干字符，idx 及其后的内容整体后移
+  function insertChars(idx, chars) {
+    const total = state.length;
+    const n = chars.length;
+    if (n === 0 || idx < 0 || idx >= total) return;
+
+    // 从末尾往前找到 idx 及之后最后一个已填格
+    let last = -1;
+    for (let i = total - 1; i >= idx; i--) {
+      if (state[i]) { last = i; break; }
+    }
+
+    const changes = [];
+
+    // 从 last 到 idx，每个字符向后移动 n 格
+    if (last >= idx) {
+      for (let i = last; i >= idx; i--) {
+        const target = i + n;
+        if (target < total) {
+          changes.push({ idx: target, ch: state[i] });
+        }
+      }
+    }
+
+    // 把新字符放到 idx 起始的位置
+    for (let i = 0; i < n; i++) {
+      if (idx + i < total) {
+        changes.push({ idx: idx + i, ch: chars[i] });
+      }
+    }
+
+    applyChanges(changes);
+    // 光标移到插入内容之后
+    focusCell(Math.min(idx + n, total - 1));
+  }
+
+  // 删除 idx 位置的字符，后面的内容整体前移
+  function deleteAt(idx) {
+    const total = state.length;
+    if (idx < 0 || idx >= total) return;
+
+    // 从末尾往前找到 idx 及之后最后一个已填格
+    let last = -1;
+    for (let i = total - 1; i >= idx; i--) {
+      if (state[i]) { last = i; break; }
+    }
+    if (last < idx) return; // idx 之后没有任何内容
+
+    const changes = [];
+    // idx+1 到 last 的内容整体前移一格
+    for (let i = idx + 1; i <= last; i++) {
+      changes.push({ idx: i - 1, ch: state[i] });
+    }
+    // 清空最后一个位置
+    changes.push({ idx: last, ch: '' });
+
+    applyChanges(changes);
+  }
+
+  /* ============ 输入处理 ============ */
+  function processValue(inp) {
+    if (!inp || !inp.isConnected) return;
+
+    const idx = Number(inp.dataset.idx);
+    const raw = inp.value;
+    const prev = state[idx] || '';
+
+    if (raw === prev) return;
+
+    // 输入框被清空（如剪切或全选删除）
+    if (!raw) {
+      if (prev) deleteAt(idx);
+      return;
+    }
+
+    // 提取字符，去掉换行和制表符
+    const chars = Array.from(raw).filter(function (c) {
+      return c !== '\n' && c !== '\r' && c !== '\t';
+    });
+
+    if (chars.length === 0) {
+      inp.value = prev;
+      return;
+    }
+
+    // 插入字符
+    insertChars(idx, chars);
+  }
+
+  /* ============ 退格 / 删除 ============ */
+  function handleBackspace(idx) {
+    if (state[idx]) {
+      // 当前格有字：删除它，后面的字前移
+      deleteAt(idx);
+      focusCell(idx);
+    } else if (idx > 0) {
+      // 当前格为空：退回上一格，删除上一格的字
+      deleteAt(idx - 1);
+      focusCell(idx - 1);
+    }
+  }
+
+  function handleDelete(idx) {
+    if (!state[idx]) return;
+    deleteAt(idx);
+    focusCell(idx);
+  }
+
+  /* ============ 事件绑定 ============ */
+  gridEl.addEventListener('focusin', function (e) {
+    if (e.target.tagName !== 'INPUT') return;
+    const inp = e.target;
+    setActive(Number(inp.dataset.idx));
+    // 聚焦后全选，保证输入即替换视觉显示，但逻辑上仍为插入
+    setTimeout(function () {
+      if (!inp.isConnected) return;
+      try { inp.setSelectionRange(0, inp.value.length); } catch (err) {}
+    }, 0);
+  });
+
+  // 输入法开始组词
+  gridEl.addEventListener('compositionstart', function () {
+    composing = true;
+  });
+
+  // 输入法提交完成
+  gridEl.addEventListener('compositionend', function (e) {
+    composing = false;
+    const inp = e.target;
+    if (!inp || inp.tagName !== 'INPUT') return;
+    setTimeout(function () {
+      if (!inp.isConnected) return;
+      const idx = Number(inp.dataset.idx);
+      if (inp.value !== (state[idx] || '')) {
+        processValue(inp);
+      }
+    }, 0);
+  });
+
+  // 普通输入（非输入法组词状态）
+  gridEl.addEventListener('input', function (e) {
+    const inp = e.target;
+    if (inp.tagName !== 'INPUT') return;
+    if (composing || e.isComposing) return;
+    processValue(inp);
+  });
+
+  // 键盘操作
+  gridEl.addEventListener('keydown', function (e) {
+    const inp = e.target;
+    if (!inp || inp.tagName !== 'INPUT') return;
+
+    const idx = Number(inp.dataset.idx);
+    const mod = e.ctrlKey || e.metaKey;
+
+    // 撤销 / 重做
+    if (mod && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault();
+      if (e.shiftKey) redo(); else undo();
+      return;
+    }
+    if (mod && (e.key === 'y' || e.key === 'Y')) {
+      e.preventDefault();
+      redo();
+      return;
+    }
+    if (mod) return;
+
+    switch (e.key) {
+      case 'Backspace':
+        e.preventDefault();
+        handleBackspace(idx);
+        break;
+      case 'Delete':
+        e.preventDefault();
+        handleDelete(idx);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        focusCell(idx + COLS);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        focusCell(idx - 1);
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        focusCell(idx + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        focusCell(idx - COLS);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        focusCell(idx + COLS);
+        break;
+      case 'Home':
+        e.preventDefault();
+        focusCell(idx - (idx % COLS));
+        break;
+      case 'End':
+        e.preventDefault();
+        focusCell(idx - (idx % COLS) + COLS - 1);
+        break;
+      case 'Tab':
+        e.preventDefault();
+        if (e.shiftKey) focusCell(idx - 1);
+        else focusCell(idx + 1);
+        break;
+      default:
+        break;
+    }
+  });
+
+  // 粘贴：把文字从当前格开始依次插入，后面的内容整体后移
+  gridEl.addEventListener('paste', function (e) {
+    const inp = e.target;
+    if (!inp || inp.tagName !== 'INPUT') return;
+    e.preventDefault();
+
+    const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+    const chars = Array.from(text).filter(function (c) {
+      return c !== '\n' && c !== '\r' && c !== '\t';
+    });
+    if (!chars.length) return;
+
+    const idx = Number(inp.dataset.idx);
+    insertChars(idx, chars);
+  });
+
+  /* ============ 工具栏 ============ */
+  function setRows(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n)) n = rows;
+    n = Math.max(1, Math.min(200, n));
+    rowsInput.value = n;
+    rows = n;
+
+    const total = rows * COLS;
+    while (state.length < total) state.push('');
+    if (state.length > total) state.length = total;
+
+    buildDOM();
+  }
+
+  rowsInput.addEventListener('change', function () { setRows(this.value); });
+  rowsInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { this.blur(); setRows(this.value); }
+  });
+
+  undoBtn.addEventListener('click', function () { undo(); gridEl.focus(); });
+  redoBtn.addEventListener('click', function () { redo(); gridEl.focus(); });
+
+  clearBtn.addEventListener('click', function () {
+    if (!confirm('确定要清空全部内容吗？此操作可以用 Ctrl+Z 撤销。')) return;
+    const changes = [];
+    for (let i = 0; i < state.length; i++) {
+      if (state[i]) changes.push({ idx: i, ch: '' });
+    }
+    if (changes.length) applyChanges(changes);
+    focusCell(0);
+  });
+
+  /* ============ 初始化 ============ */
+  rows = parseInt(rowsInput.value, 10) || 40;
+  state = new Array(rows * COLS).fill('');
+  buildDOM();
+
+})();
+</script>
+</body>
+</html>
