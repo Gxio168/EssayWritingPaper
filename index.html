@@ -635,6 +635,7 @@
   const redoStack = [];
   const undoHistory = new Map();   // 按答题纸保存撤销/重做历史，来回切换不丢
   const DRAFT_KEY = '__draft__';
+  let undoBaseline = 0;            // 本次打开时的撤销栈深度：撤销不会退到载入之前
 
   let storageOK = true;
   let papers = [];           // 已保存的答题纸记录（不含当前未保存草稿）
@@ -761,6 +762,21 @@
     return d.getFullYear() + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate());
   }
 
+  // 名称里用的完整日期，例如 2026-09-15
+  function fmtDate(ts) {
+    const d = ts === undefined ? new Date() : new Date(ts);
+    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+  }
+
+  // 名称里用的日期 + 时分秒，例如 2026-09-15 14:07:32
+  function fmtStamp(ts) {
+    const d = ts === undefined ? new Date() : new Date(ts);
+    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return fmtDate(d.getTime()) + ' ' +
+           p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds());
+  }
+
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
@@ -780,7 +796,7 @@
   let dlgOpen = false;
 
   // opts: { title, message, icon:'info'|'warn'|'danger', confirmText, cancelText,
-  //         danger:Boolean, input:{ value, placeholder } }
+  //         danger:Boolean, input:{ value, placeholder }, restoreFocus:Boolean }
   // 返回 Promise：确认 → true（或输入框字符串）；取消 → false
   function openDialog(opts) {
     opts = opts || {};
@@ -835,7 +851,8 @@
           if (layer.parentNode) layer.parentNode.removeChild(layer);
           dlgOpen = false;
           // 只在原焦点还挂在文档上时还原，避免聚焦到已被重建的单元格
-          if (prevFocus && prevFocus.isConnected && prevFocus.focus) {
+          if (opts.restoreFocus !== false &&
+              prevFocus && prevFocus.isConnected && prevFocus.focus) {
             try { prevFocus.focus(); } catch (e) {}
           }
         }, 160);
@@ -966,6 +983,11 @@
 
   function undo() {
     if (!undoStack.length) return;
+    // 不撤销到本次打开之前的状态，避免误触把刚打开的答题纸清空
+    if (undoStack.length <= undoBaseline) {
+      toast('已经回到打开时的状态了');
+      return;
+    }
     const records = undoStack.pop();
     redoStack.push(records);
 
@@ -996,7 +1018,7 @@
   }
 
   function updateUndoButtons() {
-    undoBtn.disabled = undoStack.length === 0;
+    undoBtn.disabled = undoStack.length <= undoBaseline;
     redoBtn.disabled = redoStack.length === 0;
   }
 
@@ -1189,6 +1211,8 @@
       undoStack.push.apply(undoStack, h.undo);
       redoStack.push.apply(redoStack, h.redo);
     }
+    // 当前深度即本次“打开”位置，撤销不再往回退
+    undoBaseline = undoStack.length;
     updateUndoButtons();
   }
 
@@ -1252,9 +1276,9 @@
     openDialog({
       title: '给答题纸起个名字',
       icon: 'info',
-      message: '保存后可以在左侧记录里按名称查找、排序，方便日后复习。',
+      message: '名称会立刻存档，之后可以在左侧记录里按名称查找、排序。',
       input: {
-        value: '申论练习 ' + fmtTime(Date.now()),
+        value: '申论练习 ' + fmtStamp(),
         placeholder: '例如：2024 省考 A 卷 第三题'
       },
       confirmText: '保存',
@@ -1305,29 +1329,57 @@
     toast('已打开「' + p.name + '」');
   }
 
+  // 把编辑区重置成一张干净的新答题纸（不涉及保存）
+  function startFresh(name) {
+    stashHistory();
+
+    clearTimeout(saveTimer);
+    rows = parseInt(rowsInput.value, 10) || rows || 40;
+    state = new Array(rows * COLS).fill('');
+    activeId = null;
+    dirty = false;
+
+    buildDOM();
+    restoreHistory(null);
+    skipNameDirty = true;
+    nameInput.value = name || '';
+    skipNameDirty = false;
+
+    updateHeader();
+    renderList();
+    setDrawer(false);
+    focusCell(0);
+  }
+
+  // 问用户要一个名称：确认返回名称字符串，取消返回 ''
+  function askNewName() {
+    return openDialog({
+      title: '给新答题纸起个名字',
+      icon: 'info',
+      message: '名称会立刻存档，之后随时可以改。<br>' +
+               '直接用默认名称也可以，点「开始作答」就行。',
+      input: {
+        value: '申论练习 ' + fmtStamp(),
+        placeholder: '例如：2024 省考 A 卷 第三题'
+      },
+      confirmText: '开始作答',
+      cancelText: '取消',
+      restoreFocus: false
+    }).then(function (val) {
+      return val ? String(val).trim() : '';
+    });
+  }
+
   function newPaper() {
     guardUnsaved('新建').then(function (go) {
       if (!go) return;
-
-      stashHistory();
-
-      clearTimeout(saveTimer);
-      rows = parseInt(rowsInput.value, 10) || rows || 40;
-      state = new Array(rows * COLS).fill('');
-      activeId = null;
-      dirty = false;
-
-      buildDOM();
-      restoreHistory(null);
-      skipNameDirty = true;
-      nameInput.value = '';
-      skipNameDirty = false;
-
-      updateHeader();
-      renderList();
-      setDrawer(false);
-      focusCell(0);
-      toast('已新建空白答题纸，命名后点「保存」');
+      askNewName().then(function (name) {
+        if (!name) return;              // 取消：不改动当前内容
+        startFresh(name);
+        doSave(name);                   // 先把这份空答题纸落档，避免刷新丢失
+        focusCell(0);
+        toast('已新建「' + name + '」');
+      });
     });
   }
 
@@ -1349,23 +1401,14 @@
       if (!okVal) return;
       papers = papers.filter(function (x) { return x.id !== id; });
       if (activeId === id) {
-        stashHistory();
-        activeId = null;
-        dirty = false;
-        rows = parseInt(rowsInput.value, 10) || rows || 40;
-        state = new Array(rows * COLS).fill('');
-        buildDOM();
-        restoreHistory(null);
-        skipNameDirty = true;
-        nameInput.value = '';
-        skipNameDirty = false;
-        setActive(-1);
-        focusCell(0);
+        startFresh('');
+        toast('已删除「' + p.name + '」，可从左侧「＋ 新建」再开一张');
+      } else {
+        toast('已删除「' + p.name + '」');
       }
       persist();
       updateHeader();
       renderList();
-      toast('已删除「' + p.name + '」');
     });
   }
 
@@ -1726,6 +1769,7 @@
     // 行列结构变化后，旧的撤销记录索引不再可靠
     undoStack.length = 0;
     redoStack.length = 0;
+    undoBaseline = 0;
     undoHistory.delete(activeId || DRAFT_KEY);
 
     buildDOM();
@@ -1873,6 +1917,15 @@
       // 打开最近修改的一份
       const latest = sortedPapers()[0];
       if (latest) loadPaper(latest.id);
+    } else {
+      // 第一次使用：先要个名字并落档，之后输入的每一笔改动都会被自动保存
+      askNewName().then(function (name) {
+        if (!name) return;
+        startFresh(name);
+        doSave(name);
+        focusCell(0);
+        toast('已创建「' + name + '」，边写边自动保存');
+      });
     }
   }
 
