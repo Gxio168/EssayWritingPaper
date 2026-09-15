@@ -1,1957 +1,2361 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>申论答题纸 · 每行25格</title>
-<style>
-  :root{
-    --cell: 36px;
-    --line: #c9cfd8;
-    --accent: #2f6fdb;
-    --accent-dark: #2456ab;
-    --sidebar-w: 306px;
-    --bg: #eef1f5;
-    --text: #333;
-  }
-  *{ box-sizing: border-box; }
-  html, body{ height: 100%; }
-  body{
-    margin: 0;
-    background: var(--bg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    font-size: 14px;
-    color: var(--text);
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>申论答题纸 · 每行25格</title>
+    <style>
+      :root {
+        --cell: 36px;
+        --line: #c9cfd8;
+        --accent: #2f6fdb;
+        --accent-dark: #2456ab;
+        --sidebar-w: 306px;
+        --bg: #eef1f5;
+        --text: #333;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+          'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        font-size: 14px;
+        color: var(--text);
+      }
 
-  /* ================= 侧边栏 ================= */
-  .sidebar{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: var(--sidebar-w);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    border-right: 1px solid #e2e6ec;
-    box-shadow: 2px 0 14px rgba(20,30,60,.05);
-    z-index: 200;
-  }
-  .sb-head{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 14px 10px;
-    border-bottom: 1px solid #eef1f5;
-  }
-  .sb-logo{
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: .5px;
-    color: #22304a;
-    white-space: nowrap;
-  }
-  .sb-logo span{ color: var(--accent); }
-  .sb-head-spacer{ flex: 1; }
+      /* ================= 侧边栏 ================= */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-right: 1px solid #e2e6ec;
+        box-shadow: 2px 0 14px rgba(20, 30, 60, 0.05);
+        z-index: 200;
+      }
+      .sb-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid #eef1f5;
+      }
+      .sb-logo {
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        color: #22304a;
+        white-space: nowrap;
+      }
+      .sb-logo span {
+        color: var(--accent);
+      }
+      .sb-head-spacer {
+        flex: 1;
+      }
 
-  .sb-tools{
-    padding: 10px 14px 12px;
-    border-bottom: 1px solid #eef1f5;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .sb-search{
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid #d3d8e0;
-    border-radius: 7px;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    background: #f8fafc;
-  }
-  .sb-search:focus{ border-color: var(--accent); background: #fff; }
-  .sb-sort{
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .sb-sort-label{ font-size: 12px; color: #889; white-space: nowrap; }
-  .sb-select{
-    flex: 1;
-    min-width: 0;
-    padding: 5px 8px;
-    border: 1px solid #d3d8e0;
-    border-radius: 6px;
-    font-size: 12.5px;
-    font-family: inherit;
-    color: #333;
-    background: #fff;
-    outline: none;
-    cursor: pointer;
-  }
-  .sb-select:focus{ border-color: var(--accent); }
+      .sb-tools {
+        padding: 10px 14px 12px;
+        border-bottom: 1px solid #eef1f5;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .sb-search {
+        width: 100%;
+        padding: 7px 10px;
+        border: 1px solid #d3d8e0;
+        border-radius: 7px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+        background: #f8fafc;
+      }
+      .sb-search:focus {
+        border-color: var(--accent);
+        background: #fff;
+      }
+      .sb-sort {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sb-sort-label {
+        font-size: 12px;
+        color: #889;
+        white-space: nowrap;
+      }
+      .sb-select {
+        flex: 1;
+        min-width: 0;
+        padding: 5px 8px;
+        border: 1px solid #d3d8e0;
+        border-radius: 6px;
+        font-size: 12.5px;
+        font-family: inherit;
+        color: #333;
+        background: #fff;
+        outline: none;
+        cursor: pointer;
+      }
+      .sb-select:focus {
+        border-color: var(--accent);
+      }
 
-  .paper-list{
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 8px;
-  }
-  .paper-item{
-    position: relative;
-    padding: 9px 10px 9px 11px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 4px;
-    transition: background .12s, border-color .12s;
-  }
-  .paper-item:hover{ background: #f4f7fc; }
-  .paper-item.active{
-    background: #e9f2ff;
-    border-color: #bcd6ff;
-  }
-  .paper-item.active::before{
-    content: '';
-    position: absolute;
-    left: 0; top: 9px; bottom: 9px;
-    width: 3px;
-    border-radius: 2px;
-    background: var(--accent);
-  }
-  .pi-row1{
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .pi-name{
-    flex: 1;
-    min-width: 0;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #22304a;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .pi-badge{
-    flex: none;
-    font-size: 11px;
-    color: #fff;
-    background: var(--accent);
-    border-radius: 10px;
-    padding: 1px 7px;
-    white-space: nowrap;
-  }
-  .pi-del{
-    flex: none;
-    display: none;
-    width: 20px; height: 20px;
-    line-height: 18px;
-    text-align: center;
-    border: none;
-    background: transparent;
-    color: #99a;
-    font-size: 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 0;
-    font-family: inherit;
-  }
-  .paper-item:hover .pi-del,
-  .paper-item.active .pi-del{ display: block; }
-  .pi-del:hover{ background: #ffe6e6; color: #d33; }
-  .pi-row2{
-    margin-top: 3px;
-    font-size: 11.5px;
-    color: #8a94a6;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .pi-snippet{
-    margin-top: 4px;
-    font-size: 11.5px;
-    color: #55607a;
-    background: #fffbe6;
-    border-radius: 4px;
-    padding: 3px 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .pi-snippet b{ color: #b06000; }
-  .empty{
-    padding: 26px 14px;
-    text-align: center;
-    color: #9aa4b5;
-    font-size: 12.5px;
-    line-height: 1.9;
-  }
+      .paper-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 8px;
+      }
+      .paper-item {
+        position: relative;
+        padding: 9px 10px 9px 11px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 4px;
+        transition: background 0.12s, border-color 0.12s;
+      }
+      .paper-item:hover {
+        background: #f4f7fc;
+      }
+      .paper-item.active {
+        background: #e9f2ff;
+        border-color: #bcd6ff;
+      }
+      .paper-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 9px;
+        bottom: 9px;
+        width: 3px;
+        border-radius: 2px;
+        background: var(--accent);
+      }
+      .pi-row1 {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .pi-name {
+        flex: 1;
+        min-width: 0;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #22304a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pi-badge {
+        flex: none;
+        font-size: 11px;
+        color: #fff;
+        background: var(--accent);
+        border-radius: 10px;
+        padding: 1px 7px;
+        white-space: nowrap;
+      }
+      .pi-del {
+        flex: none;
+        display: none;
+        width: 20px;
+        height: 20px;
+        line-height: 18px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        color: #99a;
+        font-size: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 0;
+        font-family: inherit;
+      }
+      .paper-item:hover .pi-del,
+      .paper-item.active .pi-del {
+        display: block;
+      }
+      .pi-del:hover {
+        background: #ffe6e6;
+        color: #d33;
+      }
+      .pi-row2 {
+        margin-top: 3px;
+        font-size: 11.5px;
+        color: #8a94a6;
+        display: flex;
+        gap: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pi-snippet {
+        margin-top: 4px;
+        font-size: 11.5px;
+        color: #55607a;
+        background: #fffbe6;
+        border-radius: 4px;
+        padding: 3px 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pi-snippet b {
+        color: #b06000;
+      }
+      .empty {
+        padding: 26px 14px;
+        text-align: center;
+        color: #9aa4b5;
+        font-size: 12.5px;
+        line-height: 1.9;
+      }
 
-  .sb-foot{
-    border-top: 1px solid #eef1f5;
-    padding: 10px 14px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    background: #fcfdff;
-  }
-  .sb-foot .btn{ flex: 1; padding: 6px 8px; font-size: 12.5px; }
-  .sb-warn{
-    padding: 8px 14px;
-    background: #fff4e5;
-    color: #96631b;
-    font-size: 12px;
-    border-top: 1px solid #ffe2bd;
-  }
+      .sb-foot {
+        border-top: 1px solid #eef1f5;
+        padding: 10px 14px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: #fcfdff;
+      }
+      .sb-foot .btn {
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 12.5px;
+      }
+      .sb-warn {
+        padding: 8px 14px;
+        background: #fff4e5;
+        color: #96631b;
+        font-size: 12px;
+        border-top: 1px solid #ffe2bd;
+      }
 
-  /* ================= 主体 ================= */
-  .main{
-    margin-left: var(--sidebar-w);
-    min-height: 100vh;
-    padding: 20px 16px 60px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+      /* ================= 主体 ================= */
+      .main {
+        margin-left: var(--sidebar-w);
+        min-height: 100vh;
+        padding: 20px 16px 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-  .toolbar{
-    position: sticky;
-    top: 12px;
-    z-index: 100;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    background: #fff;
-    padding: 10px 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(20,30,60,.10);
-    margin-bottom: 18px;
-    font-size: 14px;
-    color: #333;
-    max-width: 100%;
-  }
-  .toolbar label{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
-  .toolbar input[type=number]{
-    width: 72px;
-    padding: 5px 8px;
-    border: 1px solid #d3d8e0;
-    border-radius: 6px;
-    font-size: 14px;
-    outline: none;
-    font-family: inherit;
-  }
-  .toolbar input[type=number]:focus{ border-color: var(--accent); }
-  .toolbar input[type=text]{
-    width: 190px;
-    padding: 5px 9px;
-    border: 1px solid #d3d8e0;
-    border-radius: 6px;
-    font-size: 14px;
-    outline: none;
-    font-family: inherit;
-  }
-  .toolbar input[type=text]:focus{ border-color: var(--accent); }
-  .btn{
-    padding: 6px 14px;
-    border: 1px solid #d3d8e0;
-    background: #fff;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-    transition: background .15s, border-color .15s;
-    font-family: inherit;
-    white-space: nowrap;
-  }
-  .btn:hover:not(:disabled){ background:#f2f5fa; border-color:#b9c3d1; }
-  .btn:active:not(:disabled){ transform: translateY(1px); }
-  .btn:disabled{ opacity: .4; cursor: not-allowed; }
-  .btn.primary{
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    font-weight: 600;
-  }
-  .btn.primary:hover:not(:disabled){ background: var(--accent-dark); border-color: var(--accent-dark); }
-  .btn.tiny{ padding: 5px 10px; font-size: 13px; }
-  .stat{
-    margin-left: auto;
-    color: #667;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .hint{
-    font-size: 12px;
-    color: #889;
-    white-space: nowrap;
-  }
-  .divider{
-    width: 1px;
-    align-self: stretch;
-    background: #e6eaf0;
-    margin: 2px 2px;
-  }
-  .menu-btn{ display: none; }
+      .toolbar {
+        position: sticky;
+        top: 12px;
+        z-index: 100;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        background: #fff;
+        padding: 10px 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(20, 30, 60, 0.1);
+        margin-bottom: 18px;
+        font-size: 14px;
+        color: #333;
+        max-width: 100%;
+      }
+      .toolbar label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .toolbar input[type='number'] {
+        width: 72px;
+        padding: 5px 8px;
+        border: 1px solid #d3d8e0;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+      }
+      .toolbar input[type='number']:focus {
+        border-color: var(--accent);
+      }
+      .toolbar input[type='text'] {
+        width: 190px;
+        padding: 5px 9px;
+        border: 1px solid #d3d8e0;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+      }
+      .toolbar input[type='text']:focus {
+        border-color: var(--accent);
+      }
+      .btn {
+        padding: 6px 14px;
+        border: 1px solid #d3d8e0;
+        background: #fff;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+      .btn:hover:not(:disabled) {
+        background: #f2f5fa;
+        border-color: #b9c3d1;
+      }
+      .btn:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .btn.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        font-weight: 600;
+      }
+      .btn.primary:hover:not(:disabled) {
+        background: var(--accent-dark);
+        border-color: var(--accent-dark);
+      }
+      .btn.tiny {
+        padding: 5px 10px;
+        font-size: 13px;
+      }
+      .stat {
+        margin-left: auto;
+        color: #667;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .hint {
+        font-size: 12px;
+        color: #889;
+        white-space: nowrap;
+      }
+      .divider {
+        width: 1px;
+        align-self: stretch;
+        background: #e6eaf0;
+        margin: 2px 2px;
+      }
+      .menu-btn {
+        display: none;
+      }
 
-  .paper{
-    background: #fff;
-    padding: 26px 30px 34px;
-    border-radius: 3px;
-    box-shadow: 0 8px 30px rgba(20,30,60,.13);
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .paper-title{
-    font-family: "Songti SC", "SimSun", "STSong", serif;
-    font-size: 17px;
-    letter-spacing: 6px;
-    color: #333;
-    margin: 0 0 18px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e2e6ec;
-    text-align: center;
-    white-space: nowrap;
-  }
+      .paper {
+        background: #fff;
+        padding: 26px 30px 34px;
+        border-radius: 3px;
+        box-shadow: 0 8px 30px rgba(20, 30, 60, 0.13);
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .paper-title {
+        font-family: 'Songti SC', 'SimSun', 'STSong', serif;
+        font-size: 17px;
+        letter-spacing: 6px;
+        color: #333;
+        margin: 0 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e6ec;
+        text-align: center;
+        white-space: nowrap;
+      }
 
-  #grid{
-    display: grid;
-    grid-template-columns: repeat(25, var(--cell));
-    grid-auto-rows: var(--cell);
-    width: max-content;
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
-    background: #fff;
-  }
-  .cell{
-    position: relative;
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
-  .cell.active{
-    background: #e9f2ff;
-    box-shadow: inset 0 0 0 2px var(--accent);
-    z-index: 2;
-  }
-  .cell input{
-    display: block;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    text-align: center;
-    font-family: "Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", serif;
-    font-size: calc(var(--cell) * 0.62);
-    line-height: var(--cell);
-    color: #1b1b1b;
-    caret-color: transparent;
-    border-radius: 0;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .cell input::selection{ background: #cfe0ff; }
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(25, var(--cell));
+        grid-auto-rows: var(--cell);
+        width: max-content;
+        border-top: 1px solid var(--line);
+        border-left: 1px solid var(--line);
+        background: #fff;
+      }
+      .cell {
+        position: relative;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .cell.active {
+        background: #e9f2ff;
+        box-shadow: inset 0 0 0 2px var(--accent);
+        z-index: 2;
+      }
+      .cell input {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        text-align: center;
+        font-family: 'Songti SC', 'SimSun', 'STSong', 'Noto Serif CJK SC', serif;
+        font-size: calc(var(--cell) * 0.62);
+        line-height: var(--cell);
+        color: #1b1b1b;
+        caret-color: transparent;
+        border-radius: 0;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .cell input::selection {
+        background: #cfe0ff;
+      }
 
-  /* ================= 浮层 ================= */
-  .backdrop{
-    position: fixed;
-    inset: 0;
-    background: rgba(20,30,60,.35);
-    z-index: 150;
-    display: none;
-  }
-  body.drawer-open .backdrop{ display: block; }
+      /* ================= 浮层 ================= */
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 30, 60, 0.35);
+        z-index: 150;
+        display: none;
+      }
+      body.drawer-open .backdrop {
+        display: block;
+      }
 
-  #toast{
-    position: fixed;
-    left: 50%;
-    bottom: 34px;
-    transform: translate(-50%, 24px);
-    background: rgba(28,38,58,.94);
-    color: #fff;
-    font-size: 13.5px;
-    padding: 9px 18px;
-    border-radius: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s, transform .2s;
-    z-index: 400;
-    max-width: 80vw;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  #toast.show{ opacity: 1; transform: translate(-50%, 0); }
+      #toast {
+        position: fixed;
+        left: 50%;
+        bottom: 34px;
+        transform: translate(-50%, 24px);
+        background: rgba(28, 38, 58, 0.94);
+        color: #fff;
+        font-size: 13.5px;
+        padding: 9px 18px;
+        border-radius: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 400;
+        max-width: 80vw;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
 
-  /* ================= 对话框 ================= */
-  .modal-layer{
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: rgba(18,26,44,.34);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-    animation: overlay-in .18s ease-out both;
-  }
-  .modal-layer.closing{ animation: overlay-out .16s ease-in both; }
-  @keyframes overlay-in{ from{ opacity: 0; } to{ opacity: 1; } }
-  @keyframes overlay-out{ from{ opacity: 1; } to{ opacity: 0; } }
+      /* ================= 对话框 ================= */
+      .modal-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(18, 26, 44, 0.34);
+        -webkit-backdrop-filter: blur(3px);
+        backdrop-filter: blur(3px);
+        animation: overlay-in 0.18s ease-out both;
+      }
+      .modal-layer.closing {
+        animation: overlay-out 0.16s ease-in both;
+      }
+      @keyframes overlay-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes overlay-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
 
-  .dialog{
-    width: min(420px, 100%);
-    background: #fff;
-    border-radius: 14px;
-    padding: 22px 22px 18px;
-    box-shadow: 0 24px 60px rgba(15,25,45,.28), 0 2px 8px rgba(15,25,45,.10);
-    animation: dialog-in .26s cubic-bezier(.16,.9,.3,1.12) both;
-    transform-origin: center 68%;
-  }
-  .modal-layer.closing .dialog{
-    animation: dialog-out .16s ease-in both;
-  }
-  @keyframes dialog-in{
-    from{ opacity: 0; transform: translateY(14px) scale(.94); }
-    to{ opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes dialog-out{
-    from{ opacity: 1; transform: translateY(0) scale(1); }
-    to{ opacity: 0; transform: translateY(6px) scale(.97); }
-  }
+      .dialog {
+        width: min(420px, 100%);
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px 22px 18px;
+        box-shadow: 0 24px 60px rgba(15, 25, 45, 0.28), 0 2px 8px rgba(15, 25, 45, 0.1);
+        animation: dialog-in 0.26s cubic-bezier(0.16, 0.9, 0.3, 1.12) both;
+        transform-origin: center 68%;
+      }
+      .modal-layer.closing .dialog {
+        animation: dialog-out 0.16s ease-in both;
+      }
+      @keyframes dialog-in {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.94);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes dialog-out {
+        from {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(6px) scale(0.97);
+        }
+      }
 
-  .dg-head{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .dg-ico{
-    flex: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 700;
-    background: #e9f2ff;
-    color: var(--accent);
-  }
-  .dg-ico.warn{ background: #fff4e0; color: #c47b16; }
-  .dg-ico.danger{ background: #ffe8e8; color: #d33f3f; }
-  .dg-title{
-    font-size: 16px;
-    font-weight: 700;
-    color: #1e2a44;
-    letter-spacing: .3px;
-  }
-  .dg-msg{
-    font-size: 13.5px;
-    line-height: 1.75;
-    color: #5b6579;
-    margin: 0 0 16px;
-    word-break: break-word;
-  }
-  .dg-msg b{ color: #22304a; }
-  .dg-input{
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid #d3d8e0;
-    border-radius: 9px;
-    font-size: 14px;
-    font-family: inherit;
-    color: #22304a;
-    background: #f8fafc;
-    outline: none;
-    margin-bottom: 16px;
-    transition: border-color .15s, box-shadow .15s, background .15s;
-  }
-  .dg-input:focus{
-    border-color: var(--accent);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(47,111,219,.14);
-  }
-  .dg-input.shake{ animation: shake .3s ease; }
-  @keyframes shake{
-    0%,100%{ transform: translateX(0); }
-    20%{ transform: translateX(-6px); }
-    45%{ transform: translateX(5px); }
-    70%{ transform: translateX(-3px); }
-  }
-  .dg-acts{
-    display: flex;
-    justify-content: flex-end;
-    gap: 9px;
-  }
-  .dg-acts .btn{ min-width: 84px; padding: 8px 14px; }
-  .btn.danger{
-    background: #e04a4a;
-    border-color: #e04a4a;
-    color: #fff;
-    font-weight: 600;
-  }
-  .btn.danger:hover:not(:disabled){ background: #c93c3c; border-color: #c93c3c; }
+      .dg-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .dg-ico {
+        flex: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 700;
+        background: #e9f2ff;
+        color: var(--accent);
+      }
+      .dg-ico.warn {
+        background: #fff4e0;
+        color: #c47b16;
+      }
+      .dg-ico.danger {
+        background: #ffe8e8;
+        color: #d33f3f;
+      }
+      .dg-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e2a44;
+        letter-spacing: 0.3px;
+      }
+      .dg-msg {
+        font-size: 13.5px;
+        line-height: 1.75;
+        color: #5b6579;
+        margin: 0 0 16px;
+        word-break: break-word;
+      }
+      .dg-msg b {
+        color: #22304a;
+      }
+      .dg-input {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #d3d8e0;
+        border-radius: 9px;
+        font-size: 14px;
+        font-family: inherit;
+        color: #22304a;
+        background: #f8fafc;
+        outline: none;
+        margin-bottom: 16px;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      }
+      .dg-input:focus {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(47, 111, 219, 0.14);
+      }
+      .dg-input.shake {
+        animation: shake 0.3s ease;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-6px);
+        }
+        45% {
+          transform: translateX(5px);
+        }
+        70% {
+          transform: translateX(-3px);
+        }
+      }
+      .dg-acts {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+      }
+      .dg-acts .btn {
+        min-width: 84px;
+        padding: 8px 14px;
+      }
+      .btn.danger {
+        background: #e04a4a;
+        border-color: #e04a4a;
+        color: #fff;
+        font-weight: 600;
+      }
+      .btn.danger:hover:not(:disabled) {
+        background: #c93c3c;
+        border-color: #c93c3c;
+      }
 
-  /* ================= 窄屏 ================= */
-  @media (max-width: 900px){
-    .sidebar{
-      transform: translateX(-100%);
-      transition: transform .22s ease;
-      box-shadow: 6px 0 24px rgba(20,30,60,.18);
-    }
-    body.drawer-open .sidebar{ transform: translateX(0); }
-    .main{ margin-left: 0; padding: 12px 10px 48px; }
-    .menu-btn{ display: inline-block; }
-    .toolbar{ font-size: 13px; gap: 8px; padding: 9px 12px; top: 8px; }
-    .toolbar input[type=text]{ width: 130px; }
-    .hint{ display: none; }
-    .stat{ margin-left: 0; }
-  }
+      /* ================= 窄屏 ================= */
+      @media (max-width: 900px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.22s ease;
+          box-shadow: 6px 0 24px rgba(20, 30, 60, 0.18);
+        }
+        body.drawer-open .sidebar {
+          transform: translateX(0);
+        }
+        .main {
+          margin-left: 0;
+          padding: 12px 10px 48px;
+        }
+        .menu-btn {
+          display: inline-block;
+        }
+        .toolbar {
+          font-size: 13px;
+          gap: 8px;
+          padding: 9px 12px;
+          top: 8px;
+        }
+        .toolbar input[type='text'] {
+          width: 130px;
+        }
+        .hint {
+          display: none;
+        }
+        .stat {
+          margin-left: 0;
+        }
+      }
 
-  @media print {
-    body{ background:#fff; padding:0; }
-    .sidebar, .backdrop, .toolbar, #toast, #modal{ display:none !important; }
-    .main{ margin-left: 0; padding: 0; display: block; }
-    .paper{ box-shadow:none; padding:0; }
-  }
-</style>
-</head>
-<body>
+      @media print {
+        body {
+          background: #fff;
+          padding: 0;
+        }
+        .sidebar,
+        .backdrop,
+        .toolbar,
+        #toast,
+        #modal {
+          display: none !important;
+        }
+        .main {
+          margin-left: 0;
+          padding: 0;
+          display: block;
+        }
+        .paper {
+          box-shadow: none;
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-head">
+        <div class="sb-logo">申论<span>答题纸</span></div>
+        <div class="sb-head-spacer"></div>
+        <button class="btn tiny primary" id="newBtn" type="button">＋ 新建</button>
+      </div>
 
-<aside class="sidebar" id="sidebar">
-  <div class="sb-head">
-    <div class="sb-logo">申论<span>答题纸</span></div>
-    <div class="sb-head-spacer"></div>
-    <button class="btn tiny primary" id="newBtn" type="button">＋ 新建</button>
-  </div>
+      <div class="sb-tools">
+        <input
+          class="sb-search"
+          id="searchInput"
+          type="text"
+          placeholder="搜索名称或内容…"
+          autocomplete="off"
+        />
+        <div class="sb-sort">
+          <span class="sb-sort-label">排序</span>
+          <select class="sb-select" id="sortSelect">
+            <option value="time-desc">最近修改优先</option>
+            <option value="time-asc">最早修改优先</option>
+            <option value="name-asc">名称 A → Z</option>
+            <option value="name-desc">名称 Z → A</option>
+            <option value="created-desc">最近创建优先</option>
+          </select>
+        </div>
+      </div>
 
-  <div class="sb-tools">
-    <input class="sb-search" id="searchInput" type="text" placeholder="搜索名称或内容…" autocomplete="off">
-    <div class="sb-sort">
-      <span class="sb-sort-label">排序</span>
-      <select class="sb-select" id="sortSelect">
-        <option value="time-desc">最近修改优先</option>
-        <option value="time-asc">最早修改优先</option>
-        <option value="name-asc">名称 A → Z</option>
-        <option value="name-desc">名称 Z → A</option>
-        <option value="created-desc">最近创建优先</option>
-      </select>
+      <div class="paper-list" id="paperList"></div>
+
+      <div class="sb-warn" id="storageWarn" style="display: none"></div>
+
+      <div class="sb-foot">
+        <button class="btn tiny" id="exportBtn" type="button">导出备份</button>
+        <button class="btn tiny" id="importBtn" type="button">导入</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden />
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <div class="main">
+      <div class="toolbar">
+        <button class="btn tiny menu-btn" id="menuBtn" type="button" title="打开答题记录">☰</button>
+        <label>行数：<input type="number" id="rowsInput" min="1" max="200" value="40" /></label>
+        <div class="divider"></div>
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="答题纸名称…"
+          autocomplete="off"
+          title="为当前答题纸命名"
+        />
+        <button class="btn" id="saveBtn" type="button" title="Ctrl + S">保存</button>
+        <button
+          class="btn"
+          id="copyBtn"
+          type="button"
+          title="复制全文（Ctrl + Shift + C），之后可直接 Ctrl + V 粘贴"
+        >
+          ⧉ 复制
+        </button>
+        <div class="divider"></div>
+        <button class="btn" id="undoBtn" type="button" title="Ctrl + Z">↶ 撤销</button>
+        <button class="btn" id="redoBtn" type="button" title="Ctrl + Shift + Z / Ctrl + Y">
+          ↷ 重做
+        </button>
+        <button class="btn" id="clearBtn" type="button">清空全部</button>
+        <span class="hint">插入模式：新字插入后，后面的字整体后移</span>
+        <span class="stat" id="stat">0 / 1000 字</span>
+      </div>
+
+      <div class="paper">
+        <h1 class="paper-title" id="paperTitle">申论答题纸</h1>
+        <div id="grid"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="paper-list" id="paperList"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="modal"></div>
 
-  <div class="sb-warn" id="storageWarn" style="display:none"></div>
+    <script>
+      ;(function () {
+        'use strict'
 
-  <div class="sb-foot">
-    <button class="btn tiny" id="exportBtn" type="button">导出备份</button>
-    <button class="btn tiny" id="importBtn" type="button">导入</button>
-    <input type="file" id="importFile" accept=".json,application/json" hidden>
-  </div>
-</aside>
+        const COLS = 25
+        const MAX_UNDO = 500
+        const LS_KEY = 'shenlun.answerSheets.v1'
+        const LS_PREFS = 'shenlun.prefs.v1'
+        const AUTOSAVE_DELAY = 1200
 
-<div class="backdrop" id="backdrop"></div>
+        const sidebar = document.getElementById('sidebar')
+        const gridEl = document.getElementById('grid')
+        const rowsInput = document.getElementById('rowsInput')
+        const statEl = document.getElementById('stat')
+        const undoBtn = document.getElementById('undoBtn')
+        const redoBtn = document.getElementById('redoBtn')
+        const clearBtn = document.getElementById('clearBtn')
+        const nameInput = document.getElementById('nameInput')
+        const saveBtn = document.getElementById('saveBtn')
+        const copyBtn = document.getElementById('copyBtn')
+        const newBtn = document.getElementById('newBtn')
+        const paperListEl = document.getElementById('paperList')
+        const searchInput = document.getElementById('searchInput')
+        const sortSelect = document.getElementById('sortSelect')
+        const paperTitle = document.getElementById('paperTitle')
+        const exportBtn = document.getElementById('exportBtn')
+        const importBtn = document.getElementById('importBtn')
+        const importFile = document.getElementById('importFile')
+        const menuBtn = document.getElementById('menuBtn')
+        const backdrop = document.getElementById('backdrop')
+        const toastEl = document.getElementById('toast')
+        const modalEl = document.getElementById('modal')
+        const storageWarn = document.getElementById('storageWarn')
 
-<div class="main">
-  <div class="toolbar">
-    <button class="btn tiny menu-btn" id="menuBtn" type="button" title="打开答题记录">☰</button>
-    <label>行数：<input type="number" id="rowsInput" min="1" max="200" value="40"></label>
-    <div class="divider"></div>
-    <input type="text" id="nameInput" placeholder="答题纸名称…" autocomplete="off" title="为当前答题纸命名">
-    <button class="btn" id="saveBtn" type="button" title="Ctrl + S">保存</button>
-    <div class="divider"></div>
-    <button class="btn" id="undoBtn" type="button" title="Ctrl + Z">↶ 撤销</button>
-    <button class="btn" id="redoBtn" type="button" title="Ctrl + Shift + Z / Ctrl + Y">↷ 重做</button>
-    <button class="btn" id="clearBtn" type="button">清空全部</button>
-    <span class="hint">插入模式：新字插入后，后面的字整体后移</span>
-    <span class="stat" id="stat">0 / 1000 字</span>
-  </div>
+        let rows = 40
+        let state = []
+        let inputs = []
+        let cellDivs = []
+        let activeIdx = -1
+        let composing = false
 
-  <div class="paper">
-    <h1 class="paper-title" id="paperTitle">申论答题纸</h1>
-    <div id="grid"></div>
-  </div>
-</div>
+        const undoStack = []
+        const redoStack = []
+        const undoHistory = new Map() // 按答题纸保存撤销/重做历史，来回切换不丢
+        const DRAFT_KEY = '__draft__'
+        let undoBaseline = 0 // 本次打开时的撤销栈深度：撤销不会退到载入之前
 
-<div id="toast" role="status" aria-live="polite"></div>
-<div id="modal"></div>
+        let storageOK = true
+        let papers = [] // 已保存的答题纸记录（不含当前未保存草稿）
+        let activeId = null // 当前答题纸 id（未保存时在内存中，不出现在 papers）
+        let dirty = false // 有未保存的改动
+        let saveTimer = null
+        let skipNameDirty = false
+        let searchTerm = ''
+        let sortMode = 'time-desc'
 
-<script>
-(function () {
-  'use strict';
-
-  const COLS = 25;
-  const MAX_UNDO = 500;
-  const LS_KEY = 'shenlun.answerSheets.v1';
-  const LS_PREFS = 'shenlun.prefs.v1';
-  const AUTOSAVE_DELAY = 1200;
-
-  const sidebar    = document.getElementById('sidebar');
-  const gridEl     = document.getElementById('grid');
-  const rowsInput  = document.getElementById('rowsInput');
-  const statEl     = document.getElementById('stat');
-  const undoBtn    = document.getElementById('undoBtn');
-  const redoBtn    = document.getElementById('redoBtn');
-  const clearBtn   = document.getElementById('clearBtn');
-  const nameInput  = document.getElementById('nameInput');
-  const saveBtn    = document.getElementById('saveBtn');
-  const newBtn     = document.getElementById('newBtn');
-  const paperListEl= document.getElementById('paperList');
-  const searchInput= document.getElementById('searchInput');
-  const sortSelect = document.getElementById('sortSelect');
-  const paperTitle = document.getElementById('paperTitle');
-  const exportBtn  = document.getElementById('exportBtn');
-  const importBtn  = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
-  const menuBtn    = document.getElementById('menuBtn');
-  const backdrop   = document.getElementById('backdrop');
-  const toastEl    = document.getElementById('toast');
-  const modalEl    = document.getElementById('modal');
-  const storageWarn= document.getElementById('storageWarn');
-
-  let rows = 40;
-  let state = [];
-  let inputs = [];
-  let cellDivs = [];
-  let activeIdx = -1;
-  let composing = false;
-
-  const undoStack = [];
-  const redoStack = [];
-  const undoHistory = new Map();   // 按答题纸保存撤销/重做历史，来回切换不丢
-  const DRAFT_KEY = '__draft__';
-  let undoBaseline = 0;            // 本次打开时的撤销栈深度：撤销不会退到载入之前
-
-  let storageOK = true;
-  let papers = [];           // 已保存的答题纸记录（不含当前未保存草稿）
-  let activeId = null;       // 当前答题纸 id（未保存时在内存中，不出现在 papers）
-  let dirty = false;         // 有未保存的改动
-  let saveTimer = null;
-  let skipNameDirty = false;
-  let searchTerm = '';
-  let sortMode = 'time-desc';
-
-  /* ==================================================================
+        /* ==================================================================
      存储层
      ================================================================== */
-  function loadStore() {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return { papers: [] };
-      const data = JSON.parse(raw);
-      if (!data || !Array.isArray(data.papers)) return { papers: [] };
-      // 清洗：丢弃结构不对的记录
-      data.papers = data.papers.filter(function (p) {
-        return p && typeof p.id === 'string' && typeof p.name === 'string';
-      }).map(function (p) {
-        if (typeof p.rows !== 'number' || p.rows < 1 || p.rows > 200) p.rows = 40;
-        if (typeof p.data !== 'object' || p.data === null) p.data = {};
-        if (typeof p.createdAt !== 'number') p.createdAt = Date.now();
-        if (typeof p.updatedAt !== 'number') p.updatedAt = p.createdAt;
-        return p;
-      });
-      return data;
-    } catch (e) {
-      storageOK = false;
-      return { papers: [] };
-    }
-  }
+        function loadStore() {
+          try {
+            const raw = localStorage.getItem(LS_KEY)
+            if (!raw) return { papers: [] }
+            const data = JSON.parse(raw)
+            if (!data || !Array.isArray(data.papers)) return { papers: [] }
+            // 清洗：丢弃结构不对的记录
+            data.papers = data.papers
+              .filter(function (p) {
+                return p && typeof p.id === 'string' && typeof p.name === 'string'
+              })
+              .map(function (p) {
+                if (typeof p.rows !== 'number' || p.rows < 1 || p.rows > 200) p.rows = 40
+                if (typeof p.data !== 'object' || p.data === null) p.data = {}
+                if (typeof p.createdAt !== 'number') p.createdAt = Date.now()
+                if (typeof p.updatedAt !== 'number') p.updatedAt = p.createdAt
+                return p
+              })
+            return data
+          } catch (e) {
+            storageOK = false
+            return { papers: [] }
+          }
+        }
 
-  function persist() {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify({ version: 1, papers: papers }));
-      return true;
-    } catch (e) {
-      storageOK = false;
-      updateStorageWarn();
-      toast('保存失败：本地存储空间可能已满');
-      return false;
-    }
-  }
+        function persist() {
+          try {
+            localStorage.setItem(LS_KEY, JSON.stringify({ version: 1, papers: papers }))
+            return true
+          } catch (e) {
+            storageOK = false
+            updateStorageWarn()
+            toast('保存失败：本地存储空间可能已满')
+            return false
+          }
+        }
 
-  function loadPrefs() {
-    try {
-      const p = JSON.parse(localStorage.getItem(LS_PREFS) || '{}');
-      if (p && typeof p.sort === 'string') sortMode = p.sort;
-      if (p && typeof p.search === 'string') searchTerm = p.search;
-    } catch (e) {}
-  }
+        function loadPrefs() {
+          try {
+            const p = JSON.parse(localStorage.getItem(LS_PREFS) || '{}')
+            if (p && typeof p.sort === 'string') sortMode = p.sort
+            if (p && typeof p.search === 'string') searchTerm = p.search
+          } catch (e) {}
+        }
 
-  function savePrefs() {
-    try {
-      localStorage.setItem(LS_PREFS, JSON.stringify({ sort: sortMode, search: searchTerm }));
-    } catch (e) {}
-  }
+        function savePrefs() {
+          try {
+            localStorage.setItem(LS_PREFS, JSON.stringify({ sort: sortMode, search: searchTerm }))
+          } catch (e) {}
+        }
 
-  function checkStorage() {
-    try {
-      const k = '__sl_test__';
-      localStorage.setItem(k, '1');
-      localStorage.removeItem(k);
-      storageOK = true;
-    } catch (e) {
-      storageOK = false;
-    }
-    updateStorageWarn();
-  }
+        function checkStorage() {
+          try {
+            const k = '__sl_test__'
+            localStorage.setItem(k, '1')
+            localStorage.removeItem(k)
+            storageOK = true
+          } catch (e) {
+            storageOK = false
+          }
+          updateStorageWarn()
+        }
 
-  function updateStorageWarn() {
-    if (storageOK) {
-      storageWarn.style.display = 'none';
-    } else {
-      storageWarn.style.display = 'block';
-      storageWarn.textContent = '⚠ 浏览器本地存储不可用（可能处于无痕模式），本次记录无法保存。';
-    }
-  }
+        function updateStorageWarn() {
+          if (storageOK) {
+            storageWarn.style.display = 'none'
+          } else {
+            storageWarn.style.display = 'block'
+            storageWarn.textContent =
+              '⚠ 浏览器本地存储不可用（可能处于无痕模式），本次记录无法保存。'
+          }
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      工具
      ================================================================== */
-  function uid() {
-    return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  }
+        function uid() {
+          return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+        }
 
-  function toSparse(stateArr) {
-    const map = {};
-    for (let i = 0; i < stateArr.length; i++) {
-      if (stateArr[i]) map[i] = stateArr[i];
-    }
-    return map;
-  }
+        function toSparse(stateArr) {
+          const map = {}
+          for (let i = 0; i < stateArr.length; i++) {
+            if (stateArr[i]) map[i] = stateArr[i]
+          }
+          return map
+        }
 
-  function countChars(stateArr) {
-    let n = 0;
-    for (let i = 0; i < stateArr.length; i++) if (stateArr[i]) n++;
-    return n;
-  }
+        function countChars(stateArr) {
+          let n = 0
+          for (let i = 0; i < stateArr.length; i++) if (stateArr[i]) n++
+          return n
+        }
 
-  function paperText(p) {
-    const d = p && p.data ? p.data : {};
-    const keys = Object.keys(d).map(Number).sort(function (a, b) { return a - b; });
-    let s = '';
-    for (const k of keys) s += d[k];
-    return s;
-  }
+        function paperText(p) {
+          const d = p && p.data ? p.data : {}
+          const keys = Object.keys(d)
+            .map(Number)
+            .sort(function (a, b) {
+              return a - b
+            })
+          let s = ''
+          for (const k of keys) s += d[k]
+          return s
+        }
 
-  function fmtTime(ts) {
-    const d = new Date(ts);
-    const now = new Date();
-    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
-    const hm = p2(d.getHours()) + ':' + p2(d.getMinutes());
-    if (d.toDateString() === now.toDateString()) return '今天 ' + hm;
-    const y = new Date(now.getTime() - 86400000);
-    if (d.toDateString() === y.toDateString()) return '昨天 ' + hm;
-    if (d.getFullYear() === now.getFullYear()) {
-      return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + hm;
-    }
-    return d.getFullYear() + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate());
-  }
+        function fmtTime(ts) {
+          const d = new Date(ts)
+          const now = new Date()
+          const p2 = function (n) {
+            return n < 10 ? '0' + n : '' + n
+          }
+          const hm = p2(d.getHours()) + ':' + p2(d.getMinutes())
+          if (d.toDateString() === now.toDateString()) return '今天 ' + hm
+          const y = new Date(now.getTime() - 86400000)
+          if (d.toDateString() === y.toDateString()) return '昨天 ' + hm
+          if (d.getFullYear() === now.getFullYear()) {
+            return d.getMonth() + 1 + '月' + d.getDate() + '日 ' + hm
+          }
+          return d.getFullYear() + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate())
+        }
 
-  // 名称里用的完整日期，例如 2026-09-15
-  function fmtDate(ts) {
-    const d = ts === undefined ? new Date() : new Date(ts);
-    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
-  }
+        // 名称里用的完整日期，例如 2026-09-15
+        function fmtDate(ts) {
+          const d = ts === undefined ? new Date() : new Date(ts)
+          const p2 = function (n) {
+            return n < 10 ? '0' + n : '' + n
+          }
+          return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate())
+        }
 
-  // 名称里用的日期 + 时分秒，例如 2026-09-15 14:07:32
-  function fmtStamp(ts) {
-    const d = ts === undefined ? new Date() : new Date(ts);
-    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return fmtDate(d.getTime()) + ' ' +
-           p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds());
-  }
+        // 名称里用的日期 + 时分秒，例如 2026-09-15 14:07:32
+        function fmtStamp(ts) {
+          const d = ts === undefined ? new Date() : new Date(ts)
+          const p2 = function (n) {
+            return n < 10 ? '0' + n : '' + n
+          }
+          return (
+            fmtDate(d.getTime()) +
+            ' ' +
+            p2(d.getHours()) +
+            ':' +
+            p2(d.getMinutes()) +
+            ':' +
+            p2(d.getSeconds())
+          )
+        }
 
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    });
-  }
+        function esc(s) {
+          return String(s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+          })
+        }
 
-  function toast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function () { toastEl.classList.remove('show'); }, 1900);
-  }
+        function toast(msg) {
+          toastEl.textContent = msg
+          toastEl.classList.add('show')
+          clearTimeout(toast._t)
+          toast._t = setTimeout(function () {
+            toastEl.classList.remove('show')
+          }, 1900)
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      自定义对话框（替代原生 confirm / prompt）
      ================================================================== */
-  let dlgOpen = false;
+        let dlgOpen = false
 
-  // opts: { title, message, icon:'info'|'warn'|'danger', confirmText, cancelText,
-  //         danger:Boolean, input:{ value, placeholder }, restoreFocus:Boolean }
-  // 返回 Promise：确认 → true（或输入框字符串）；取消 → false
-  function openDialog(opts) {
-    opts = opts || {};
-    if (dlgOpen) return Promise.resolve(false);
-    dlgOpen = true;
+        // opts: { title, message, icon:'info'|'warn'|'danger', confirmText, cancelText,
+        //         danger:Boolean, input:{ value, placeholder }, restoreFocus:Boolean }
+        // 返回 Promise：确认 → true（或输入框字符串）；取消 → false
+        function openDialog(opts) {
+          opts = opts || {}
+          if (dlgOpen) return Promise.resolve(false)
+          dlgOpen = true
 
-    const iconKind = opts.icon || (opts.danger ? 'danger' : 'info');
-    const iconChar = iconKind === 'danger' ? '!' : (iconKind === 'warn' ? '!' : 'i');
+          const iconKind = opts.icon || (opts.danger ? 'danger' : 'info')
+          const iconChar = iconKind === 'danger' ? '!' : iconKind === 'warn' ? '!' : 'i'
 
-    const layer = document.createElement('div');
-    layer.className = 'modal-layer';
-    layer.innerHTML =
-      '<div class="dialog" role="dialog" aria-modal="true">' +
-        '<div class="dg-head">' +
-          '<div class="dg-ico ' + iconKind + '">' + iconChar + '</div>' +
-          '<div class="dg-title"></div>' +
-        '</div>' +
-        '<p class="dg-msg"></p>' +
-        (opts.input ? '<input class="dg-input" type="text" autocomplete="off">' : '') +
-        '<div class="dg-acts">' +
-          '<button class="btn" type="button" data-act="cancel"></button>' +
-          '<button class="btn ' + (opts.danger ? 'danger' : 'primary') + '" type="button" data-act="ok"></button>' +
-        '</div>' +
-      '</div>';
+          const layer = document.createElement('div')
+          layer.className = 'modal-layer'
+          layer.innerHTML =
+            '<div class="dialog" role="dialog" aria-modal="true">' +
+            '<div class="dg-head">' +
+            '<div class="dg-ico ' +
+            iconKind +
+            '">' +
+            iconChar +
+            '</div>' +
+            '<div class="dg-title"></div>' +
+            '</div>' +
+            '<p class="dg-msg"></p>' +
+            (opts.input ? '<input class="dg-input" type="text" autocomplete="off">' : '') +
+            '<div class="dg-acts">' +
+            '<button class="btn" type="button" data-act="cancel"></button>' +
+            '<button class="btn ' +
+            (opts.danger ? 'danger' : 'primary') +
+            '" type="button" data-act="ok"></button>' +
+            '</div>' +
+            '</div>'
 
-    const dlg      = layer.firstChild;
-    const titleEl  = dlg.querySelector('.dg-title');
-    const msgEl    = dlg.querySelector('.dg-msg');
-    const okBtn    = dlg.querySelector('[data-act=ok]');
-    const cancelBtn= dlg.querySelector('[data-act=cancel]');
-    const inputEl  = dlg.querySelector('.dg-input');
+          const dlg = layer.firstChild
+          const titleEl = dlg.querySelector('.dg-title')
+          const msgEl = dlg.querySelector('.dg-msg')
+          const okBtn = dlg.querySelector('[data-act=ok]')
+          const cancelBtn = dlg.querySelector('[data-act=cancel]')
+          const inputEl = dlg.querySelector('.dg-input')
 
-    titleEl.textContent = opts.title || '提示';
-    msgEl.innerHTML = opts.message || '';
-    okBtn.textContent = opts.confirmText || '确定';
-    cancelBtn.textContent = opts.cancelText || '取消';
-    if (inputEl) {
-      inputEl.value = (opts.input && opts.input.value) || '';
-      inputEl.placeholder = (opts.input && opts.input.placeholder) || '';
-    }
-
-    modalEl.appendChild(layer);
-
-    return new Promise(function (resolve) {
-      let settled = false;
-      let prevFocus = document.activeElement;
-
-      function cleanup() {
-        document.removeEventListener('keydown', onKey, true);
-        layer.classList.add('closing');
-        setTimeout(function () {
-          if (layer.parentNode) layer.parentNode.removeChild(layer);
-          dlgOpen = false;
-          // 只在原焦点还挂在文档上时还原，避免聚焦到已被重建的单元格
-          if (opts.restoreFocus !== false &&
-              prevFocus && prevFocus.isConnected && prevFocus.focus) {
-            try { prevFocus.focus(); } catch (e) {}
+          titleEl.textContent = opts.title || '提示'
+          msgEl.innerHTML = opts.message || ''
+          okBtn.textContent = opts.confirmText || '确定'
+          cancelBtn.textContent = opts.cancelText || '取消'
+          if (inputEl) {
+            inputEl.value = (opts.input && opts.input.value) || ''
+            inputEl.placeholder = (opts.input && opts.input.placeholder) || ''
           }
-        }, 160);
-      }
 
-      function done(val) {
-        if (settled) return;
-        settled = true;
-        cleanup();
-        resolve(val);
-      }
+          modalEl.appendChild(layer)
 
-      function ok() {
-        if (inputEl) {
-          const v = inputEl.value.trim();
-          if (!v) {
-            inputEl.classList.remove('shake');
-            void inputEl.offsetWidth;           // 触发重排，重放动画
-            inputEl.classList.add('shake');
-            inputEl.focus();
-            return;
-          }
-          done(v);
-          return;
+          return new Promise(function (resolve) {
+            let settled = false
+            let prevFocus = document.activeElement
+
+            function cleanup() {
+              document.removeEventListener('keydown', onKey, true)
+              layer.classList.add('closing')
+              setTimeout(function () {
+                if (layer.parentNode) layer.parentNode.removeChild(layer)
+                dlgOpen = false
+                // 只在原焦点还挂在文档上时还原，避免聚焦到已被重建的单元格
+                if (
+                  opts.restoreFocus !== false &&
+                  prevFocus &&
+                  prevFocus.isConnected &&
+                  prevFocus.focus
+                ) {
+                  try {
+                    prevFocus.focus()
+                  } catch (e) {}
+                }
+              }, 160)
+            }
+
+            function done(val) {
+              if (settled) return
+              settled = true
+              cleanup()
+              resolve(val)
+            }
+
+            function ok() {
+              if (inputEl) {
+                const v = inputEl.value.trim()
+                if (!v) {
+                  inputEl.classList.remove('shake')
+                  void inputEl.offsetWidth // 触发重排，重放动画
+                  inputEl.classList.add('shake')
+                  inputEl.focus()
+                  return
+                }
+                done(v)
+                return
+              }
+              done(true)
+            }
+
+            function onKey(e) {
+              if (e.key === 'Escape') {
+                e.preventDefault()
+                e.stopPropagation()
+                done(false)
+              } else if (e.key === 'Enter') {
+                // 输入法组词中不提交
+                if (e.isComposing || e.keyCode === 229) return
+                e.preventDefault()
+                e.stopPropagation()
+                ok()
+              }
+            }
+
+            okBtn.addEventListener('click', ok)
+            cancelBtn.addEventListener('click', function () {
+              done(false)
+            })
+            layer.addEventListener('mousedown', function (e) {
+              if (e.target === layer) done(false)
+            })
+            document.addEventListener('keydown', onKey, true)
+
+            requestAnimationFrame(function () {
+              if (inputEl) {
+                inputEl.focus()
+                if (inputEl.select) inputEl.select()
+              } else okBtn.focus()
+            })
+          })
         }
-        done(true);
-      }
 
-      function onKey(e) {
-        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
-        else if (e.key === 'Enter') {
-          // 输入法组词中不提交
-          if (e.isComposing || e.keyCode === 229) return;
-          e.preventDefault(); e.stopPropagation(); ok();
+        function alertDialog(title, message, icon) {
+          return openDialog({
+            title: title,
+            message: message,
+            icon: icon || 'info',
+            cancelText: '知道了',
+            confirmText: '好的',
+          })
         }
-      }
 
-      okBtn.addEventListener('click', ok);
-      cancelBtn.addEventListener('click', function () { done(false); });
-      layer.addEventListener('mousedown', function (e) {
-        if (e.target === layer) done(false);
-      });
-      document.addEventListener('keydown', onKey, true);
+        function setDrawer(open) {
+          document.body.classList.toggle('drawer-open', !!open)
+        }
 
-      requestAnimationFrame(function () {
-        if (inputEl) { inputEl.focus(); if (inputEl.select) inputEl.select(); }
-        else okBtn.focus();
-      });
-    });
-  }
-
-  function alertDialog(title, message, icon) {
-    return openDialog({
-      title: title,
-      message: message,
-      icon: icon || 'info',
-      cancelText: '知道了',
-      confirmText: '好的'
-    });
-  }
-
-  function setDrawer(open) {
-    document.body.classList.toggle('drawer-open', !!open);
-  }
-
-  /* ==================================================================
+        /* ==================================================================
      构建 DOM
      ================================================================== */
-  function buildDOM() {
-    gridEl.innerHTML = '';
-    inputs = [];
-    cellDivs = [];
-    activeIdx = -1;
+        function buildDOM() {
+          gridEl.innerHTML = ''
+          inputs = []
+          cellDivs = []
+          activeIdx = -1
 
-    const frag = document.createDocumentFragment();
-    const total = rows * COLS;
+          const frag = document.createDocumentFragment()
+          const total = rows * COLS
 
-    while (state.length < total) state.push('');
+          while (state.length < total) state.push('')
 
-    for (let i = 0; i < total; i++) {
-      const div = document.createElement('div');
-      div.className = 'cell';
+          for (let i = 0; i < total; i++) {
+            const div = document.createElement('div')
+            div.className = 'cell'
 
-      const inp = document.createElement('input');
-      inp.type = 'text';
-      inp.autocomplete = 'off';
-      inp.spellcheck = false;
-      inp.setAttribute('autocorrect', 'off');
-      inp.setAttribute('autocapitalize', 'off');
-      inp.dataset.idx = i;
-      inp.value = state[i] || '';
+            const inp = document.createElement('input')
+            inp.type = 'text'
+            inp.autocomplete = 'off'
+            inp.spellcheck = false
+            inp.setAttribute('autocorrect', 'off')
+            inp.setAttribute('autocapitalize', 'off')
+            inp.dataset.idx = i
+            inp.value = state[i] || ''
 
-      div.appendChild(inp);
-      frag.appendChild(div);
+            div.appendChild(inp)
+            frag.appendChild(div)
 
-      inputs.push(inp);
-      cellDivs.push(div);
-    }
+            inputs.push(inp)
+            cellDivs.push(div)
+          }
 
-    gridEl.appendChild(frag);
-    updateStat();
-    updateUndoButtons();
-  }
+          gridEl.appendChild(frag)
+          updateStat()
+          updateUndoButtons()
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      状态与撤销
      ================================================================== */
-  function applyChanges(changes) {
-    const records = [];
-    for (const c of changes) {
-      if (c.idx >= state.length) continue;
-      const prev = state[c.idx] || '';
-      if (prev === c.ch) continue;
-      records.push({ idx: c.idx, prev: prev, next: c.ch });
-      state[c.idx] = c.ch;
-      if (inputs[c.idx]) inputs[c.idx].value = c.ch;
-    }
-    if (!records.length) return;
+        function applyChanges(changes) {
+          const records = []
+          for (const c of changes) {
+            if (c.idx >= state.length) continue
+            const prev = state[c.idx] || ''
+            if (prev === c.ch) continue
+            records.push({ idx: c.idx, prev: prev, next: c.ch })
+            state[c.idx] = c.ch
+            if (inputs[c.idx]) inputs[c.idx].value = c.ch
+          }
+          if (!records.length) return
 
-    undoStack.push(records);
-    if (undoStack.length > MAX_UNDO) undoStack.shift();
-    redoStack.length = 0;
+          undoStack.push(records)
+          if (undoStack.length > MAX_UNDO) undoStack.shift()
+          redoStack.length = 0
 
-    updateStat();
-    updateUndoButtons();
-    markDirty();
-  }
+          updateStat()
+          updateUndoButtons()
+          markDirty()
+        }
 
-  function undo() {
-    if (!undoStack.length) return;
-    // 不撤销到本次打开之前的状态，避免误触把刚打开的答题纸清空
-    if (undoStack.length <= undoBaseline) {
-      toast('已经回到打开时的状态了');
-      return;
-    }
-    const records = undoStack.pop();
-    redoStack.push(records);
+        function undo() {
+          if (!undoStack.length) return
+          // 不撤销到本次打开之前的状态，避免误触把刚打开的答题纸清空
+          if (undoStack.length <= undoBaseline) {
+            toast('已经回到打开时的状态了')
+            return
+          }
+          const records = undoStack.pop()
+          redoStack.push(records)
 
-    for (let i = records.length - 1; i >= 0; i--) {
-      const r = records[i];
-      state[r.idx] = r.prev;
-      if (inputs[r.idx]) inputs[r.idx].value = r.prev;
-    }
-    focusCell(records[0].idx);
-    updateStat();
-    updateUndoButtons();
-    markDirty();
-  }
+          for (let i = records.length - 1; i >= 0; i--) {
+            const r = records[i]
+            state[r.idx] = r.prev
+            if (inputs[r.idx]) inputs[r.idx].value = r.prev
+          }
+          focusCell(records[0].idx)
+          updateStat()
+          updateUndoButtons()
+          markDirty()
+        }
 
-  function redo() {
-    if (!redoStack.length) return;
-    const records = redoStack.pop();
-    undoStack.push(records);
+        function redo() {
+          if (!redoStack.length) return
+          const records = redoStack.pop()
+          undoStack.push(records)
 
-    for (const r of records) {
-      state[r.idx] = r.next;
-      if (inputs[r.idx]) inputs[r.idx].value = r.next;
-    }
-    focusCell(records[records.length - 1].idx);
-    updateStat();
-    updateUndoButtons();
-    markDirty();
-  }
+          for (const r of records) {
+            state[r.idx] = r.next
+            if (inputs[r.idx]) inputs[r.idx].value = r.next
+          }
+          focusCell(records[records.length - 1].idx)
+          updateStat()
+          updateUndoButtons()
+          markDirty()
+        }
 
-  function updateUndoButtons() {
-    undoBtn.disabled = undoStack.length <= undoBaseline;
-    redoBtn.disabled = redoStack.length === 0;
-  }
+        function updateUndoButtons() {
+          undoBtn.disabled = undoStack.length <= undoBaseline
+          redoBtn.disabled = redoStack.length === 0
+        }
 
-  function updateStat() {
-    let n = 0;
-    for (let i = 0; i < state.length; i++) if (state[i]) n++;
-    statEl.textContent = n + ' / ' + state.length + ' 字';
-  }
+        function updateStat() {
+          let n = 0
+          for (let i = 0; i < state.length; i++) if (state[i]) n++
+          statEl.textContent = n + ' / ' + state.length + ' 字'
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      焦点
      ================================================================== */
-  function setActive(idx) {
-    if (activeIdx === idx) return;
-    if (activeIdx >= 0 && cellDivs[activeIdx]) {
-      cellDivs[activeIdx].classList.remove('active');
-    }
-    activeIdx = idx;
-    if (idx >= 0 && cellDivs[idx]) {
-      cellDivs[idx].classList.add('active');
-    }
-  }
+        function setActive(idx) {
+          if (activeIdx === idx) return
+          if (activeIdx >= 0 && cellDivs[activeIdx]) {
+            cellDivs[activeIdx].classList.remove('active')
+          }
+          activeIdx = idx
+          if (idx >= 0 && cellDivs[idx]) {
+            cellDivs[idx].classList.add('active')
+          }
+        }
 
-  function focusCell(idx) {
-    if (!inputs.length) return;
-    if (idx < 0) idx = 0;
-    if (idx >= inputs.length) idx = inputs.length - 1;
+        function focusCell(idx) {
+          if (!inputs.length) return
+          if (idx < 0) idx = 0
+          if (idx >= inputs.length) idx = inputs.length - 1
 
-    const inp = inputs[idx];
-    inp.focus();
-    try { inp.setSelectionRange(0, inp.value.length); } catch (e) {}
-    setActive(idx);
-  }
+          const inp = inputs[idx]
+          inp.focus()
+          try {
+            inp.setSelectionRange(0, inp.value.length)
+          } catch (e) {}
+          setActive(idx)
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      核心：插入 / 删除
      ================================================================== */
-  // 在 idx 位置插入若干字符，idx 及其后的内容整体后移
-  function insertChars(idx, chars) {
-    const total = state.length;
-    const n = chars.length;
-    if (n === 0 || idx < 0 || idx >= total) return;
+        // 在 idx 位置插入若干字符，idx 及其后的内容整体后移
+        function insertChars(idx, chars) {
+          const total = state.length
+          const n = chars.length
+          if (n === 0 || idx < 0 || idx >= total) return
 
-    let last = -1;
-    for (let i = total - 1; i >= idx; i--) {
-      if (state[i]) { last = i; break; }
-    }
+          let last = -1
+          for (let i = total - 1; i >= idx; i--) {
+            if (state[i]) {
+              last = i
+              break
+            }
+          }
 
-    const changes = [];
+          const changes = []
 
-    if (last >= idx) {
-      for (let i = last; i >= idx; i--) {
-        const target = i + n;
-        if (target < total) {
-          changes.push({ idx: target, ch: state[i] });
+          if (last >= idx) {
+            for (let i = last; i >= idx; i--) {
+              const target = i + n
+              if (target < total) {
+                changes.push({ idx: target, ch: state[i] })
+              }
+            }
+          }
+
+          for (let i = 0; i < n; i++) {
+            if (idx + i < total) {
+              changes.push({ idx: idx + i, ch: chars[i] })
+            }
+          }
+
+          applyChanges(changes)
+          focusCell(Math.min(idx + n, total - 1))
         }
-      }
-    }
 
-    for (let i = 0; i < n; i++) {
-      if (idx + i < total) {
-        changes.push({ idx: idx + i, ch: chars[i] });
-      }
-    }
+        // 直接把一个字填进指定的空格子，不影响其它任何格子
+        function fillCell(idx, ch) {
+          if (idx < 0 || idx >= state.length) return
+          if (state[idx]) return
+          applyChanges([{ idx: idx, ch: ch }])
+          focusCell(idx + 1)
+        }
 
-    applyChanges(changes);
-    focusCell(Math.min(idx + n, total - 1));
-  }
+        // idx 之后是否还有已填的格子
+        function hasContentAfter(idx) {
+          for (let i = idx + 1; i < state.length; i++) {
+            if (state[i]) return true
+          }
+          return false
+        }
 
-  // 直接把一个字填进指定的空格子，不影响其它任何格子
-  function fillCell(idx, ch) {
-    if (idx < 0 || idx >= state.length) return;
-    if (state[idx]) return;
-    applyChanges([{ idx: idx, ch: ch }]);
-    focusCell(idx + 1);
-  }
+        // 删除 idx 位置的字符，后面的内容整体前移
+        function deleteAt(idx) {
+          const total = state.length
+          if (idx < 0 || idx >= total) return
 
-  // idx 之后是否还有已填的格子
-  function hasContentAfter(idx) {
-    for (let i = idx + 1; i < state.length; i++) {
-      if (state[i]) return true;
-    }
-    return false;
-  }
+          let last = -1
+          for (let i = total - 1; i >= idx; i--) {
+            if (state[i]) {
+              last = i
+              break
+            }
+          }
+          if (last < idx) return
 
-  // 删除 idx 位置的字符，后面的内容整体前移
-  function deleteAt(idx) {
-    const total = state.length;
-    if (idx < 0 || idx >= total) return;
+          const changes = []
+          for (let i = idx + 1; i <= last; i++) {
+            changes.push({ idx: i - 1, ch: state[i] })
+          }
+          changes.push({ idx: last, ch: '' })
 
-    let last = -1;
-    for (let i = total - 1; i >= idx; i--) {
-      if (state[i]) { last = i; break; }
-    }
-    if (last < idx) return;
+          applyChanges(changes)
+        }
 
-    const changes = [];
-    for (let i = idx + 1; i <= last; i++) {
-      changes.push({ idx: i - 1, ch: state[i] });
-    }
-    changes.push({ idx: last, ch: '' });
-
-    applyChanges(changes);
-  }
-
-  /* ==================================================================
+        /* ==================================================================
      输入处理
      ================================================================== */
-  function processValue(inp) {
-    if (!inp || !inp.isConnected) return;
+        function processValue(inp) {
+          if (!inp || !inp.isConnected) return
 
-    const idx = Number(inp.dataset.idx);
-    const raw = inp.value;
-    const prev = state[idx] || '';
+          const idx = Number(inp.dataset.idx)
+          const raw = inp.value
+          const prev = state[idx] || ''
 
-    if (raw === prev) return;
+          if (raw === prev) return
 
-    if (!raw) {
-      if (prev) deleteAt(idx);
-      return;
-    }
+          if (!raw) {
+            if (prev) deleteAt(idx)
+            return
+          }
 
-    const chars = Array.from(raw).filter(function (c) {
-      return c !== '\n' && c !== '\r' && c !== '\t';
-    });
+          const chars = Array.from(raw).filter(function (c) {
+            return c !== '\n' && c !== '\r' && c !== '\t'
+          })
 
-    if (chars.length === 0) {
-      inp.value = prev;
-      return;
-    }
+          if (chars.length === 0) {
+            inp.value = prev
+            return
+          }
 
-    // 落在空格上且后面已经没有内容：直接填进这一格，不需要推动任何东西
-    if (!prev && chars.length === 1 && !hasContentAfter(idx)) {
-      fillCell(idx, chars[0]);
-      return;
-    }
+          // 落在空格上且后面已经没有内容：直接填进这一格，不需要推动任何东西
+          if (!prev && chars.length === 1 && !hasContentAfter(idx)) {
+            fillCell(idx, chars[0])
+            return
+          }
 
-    insertChars(idx, chars);
-  }
+          insertChars(idx, chars)
+        }
 
-  function handleBackspace(idx) {
-    if (idx < 0 || idx >= state.length) return;
-    // 退格 = 删除光标所在格：格子有字就删字，是空格就把后面的内容整体前移补位，
-    // 绝不回头去删上一格的内容。
-    deleteAt(idx);
-    focusCell(idx);
-  }
+        function handleBackspace(idx) {
+          if (idx < 0 || idx >= state.length) return
 
-  function handleDelete(idx) {
-    if (!state[idx]) return;
-    deleteAt(idx);
-    focusCell(idx);
-  }
+          // 退格 = 删除光标所在格：有字删字，是空格就把后面的内容整体前移补位
+          deleteAt(idx)
 
-  /* ==================================================================
+          // 删除后光标统一向前挪一格（连按退格可以一路往前删）
+          focusCell(idx - 1)
+        }
+
+        function handleDelete(idx) {
+          if (!state[idx]) return
+          deleteAt(idx)
+          focusCell(idx)
+        }
+
+        /* ==================================================================
      当前答题纸：脏标记 / 保存 / 加载 / 新建
      ================================================================== */
-  function buildCurrent(name) {
-    const now = Date.now();
-    return {
-      id: uid(),
-      name: name,
-      rows: rows,
-      data: toSparse(state),
-      wordCount: countChars(state),
-      createdAt: now,
-      updatedAt: now
-    };
-  }
+        function buildCurrent(name) {
+          const now = Date.now()
+          return {
+            id: uid(),
+            name: name,
+            rows: rows,
+            data: toSparse(state),
+            wordCount: countChars(state),
+            createdAt: now,
+            updatedAt: now,
+          }
+        }
 
-  function findPaper(id) {
-    for (let i = 0; i < papers.length; i++) if (papers[i].id === id) return papers[i];
-    return null;
-  }
+        function findPaper(id) {
+          for (let i = 0; i < papers.length; i++) if (papers[i].id === id) return papers[i]
+          return null
+        }
 
-  function isSaved() {
-    return !!(activeId && findPaper(activeId));
-  }
+        function isSaved() {
+          return !!(activeId && findPaper(activeId))
+        }
 
-  // 切换/新建前处理未保存内容：已存档的自动落盘，未存档草稿需用户确认
-  function guardUnsaved(actionLabel) {
-    if (!dirty) return Promise.resolve(true);
-    if (isSaved()) { autosave(); return Promise.resolve(true); }
-    if (countChars(state) === 0) return Promise.resolve(true);
-    return openDialog({
-      title: '尚未保存',
-      icon: 'warn',
-      message: '当前答题纸还没有保存，' + esc(actionLabel) + '后这份内容将会丢失。<br>' +
-               '建议先点「保存」留档，再' + esc(actionLabel) + '。',
-      cancelText: '返回保存',
-      confirmText: '仍要' + actionLabel,
-      danger: true
-    });
-  }
+        // 切换/新建前处理未保存内容：已存档的自动落盘，未存档草稿需用户确认
+        function guardUnsaved(actionLabel) {
+          if (!dirty) return Promise.resolve(true)
+          if (isSaved()) {
+            autosave()
+            return Promise.resolve(true)
+          }
+          if (countChars(state) === 0) return Promise.resolve(true)
+          return openDialog({
+            title: '尚未保存',
+            icon: 'warn',
+            message:
+              '当前答题纸还没有保存，' +
+              esc(actionLabel) +
+              '后这份内容将会丢失。<br>' +
+              '建议先点「保存」留档，再' +
+              esc(actionLabel) +
+              '。',
+            cancelText: '返回保存',
+            confirmText: '仍要' + actionLabel,
+            danger: true,
+          })
+        }
 
-  // 撤销历史按答题纸归档：切走时存起来，切回时恢复
-  function stashHistory() {
-    if (!undoStack.length && !redoStack.length) return;
-    undoHistory.set(activeId || DRAFT_KEY, {
-      undo: undoStack.slice(),
-      redo: redoStack.slice()
-    });
-  }
+        // 撤销历史按答题纸归档：切走时存起来，切回时恢复
+        function stashHistory() {
+          if (!undoStack.length && !redoStack.length) return
+          undoHistory.set(activeId || DRAFT_KEY, {
+            undo: undoStack.slice(),
+            redo: redoStack.slice(),
+          })
+        }
 
-  function restoreHistory(id) {
-    const h = undoHistory.get(id || DRAFT_KEY);
-    undoStack.length = 0;
-    redoStack.length = 0;
-    if (h) {
-      undoStack.push.apply(undoStack, h.undo);
-      redoStack.push.apply(redoStack, h.redo);
-    }
-    // 当前深度即本次“打开”位置，撤销不再往回退
-    undoBaseline = undoStack.length;
-    updateUndoButtons();
-  }
+        function restoreHistory(id) {
+          const h = undoHistory.get(id || DRAFT_KEY)
+          undoStack.length = 0
+          redoStack.length = 0
+          if (h) {
+            undoStack.push.apply(undoStack, h.undo)
+            redoStack.push.apply(redoStack, h.redo)
+          }
+          // 当前深度即本次“打开”位置，撤销不再往回退
+          undoBaseline = undoStack.length
+          updateUndoButtons()
+        }
 
-  function markDirty() {
-    dirty = true;
-    updateHeader();
-    updateActiveBadge();
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      // 未命名/未保存的草稿不自动落盘，由用户点击“保存”决定
-      if (isSaved()) autosave();
-    }, AUTOSAVE_DELAY);
-  }
+        function markDirty() {
+          dirty = true
+          updateHeader()
+          updateActiveBadge()
+          clearTimeout(saveTimer)
+          saveTimer = setTimeout(function () {
+            // 未命名/未保存的草稿不自动落盘，由用户点击“保存”决定
+            if (isSaved()) autosave()
+          }, AUTOSAVE_DELAY)
+        }
 
-  function autosave() {
-    const p = activeId ? findPaper(activeId) : null;
-    if (!p) return;
-    if (nameInput.value.trim()) p.name = nameInput.value.trim();
-    p.rows = rows;
-    p.data = toSparse(state);
-    p.wordCount = countChars(state);
-    p.updatedAt = Date.now();
-    if (persist()) {
-      dirty = false;
-      updateHeader();
-      renderList();
-    }
-  }
+        function autosave() {
+          const p = activeId ? findPaper(activeId) : null
+          if (!p) return
+          if (nameInput.value.trim()) p.name = nameInput.value.trim()
+          p.rows = rows
+          p.data = toSparse(state)
+          p.wordCount = countChars(state)
+          p.updatedAt = Date.now()
+          if (persist()) {
+            dirty = false
+            updateHeader()
+            renderList()
+          }
+        }
 
-  function doSave(name) {
-    let p = activeId ? findPaper(activeId) : null;
-    if (!p) {
-      p = buildCurrent(name);
-      papers.push(p);
-      activeId = p.id;
-    } else {
-      p.name = name;
-      p.rows = rows;
-      p.data = toSparse(state);
-      p.wordCount = countChars(state);
-      p.updatedAt = Date.now();
-    }
+        function doSave(name) {
+          let p = activeId ? findPaper(activeId) : null
+          if (!p) {
+            p = buildCurrent(name)
+            papers.push(p)
+            activeId = p.id
+          } else {
+            p.name = name
+            p.rows = rows
+            p.data = toSparse(state)
+            p.wordCount = countChars(state)
+            p.updatedAt = Date.now()
+          }
 
-    if (persist()) {
-      dirty = false;
-      updateHeader();
-      renderList();
-      toast('已保存「' + p.name + '」');
-      return true;
-    }
-    return false;
-  }
+          if (persist()) {
+            dirty = false
+            updateHeader()
+            renderList()
+            toast('已保存「' + p.name + '」')
+            return true
+          }
+          return false
+        }
 
-  function savePaper(quiet) {
-    clearTimeout(saveTimer);
-    let name = nameInput.value.trim();
+        function savePaper(quiet) {
+          clearTimeout(saveTimer)
+          let name = nameInput.value.trim()
 
-    if (name) { doSave(name); return; }
+          if (name) {
+            doSave(name)
+            return
+          }
 
-    if (quiet) return;
-    openDialog({
-      title: '给答题纸起个名字',
-      icon: 'info',
-      message: '名称会立刻存档，之后可以在左侧记录里按名称查找、排序。',
-      input: {
-        value: '申论练习 ' + fmtStamp(),
-        placeholder: '例如：2024 省考 A 卷 第三题'
-      },
-      confirmText: '保存',
-      cancelText: '取消'
-    }).then(function (val) {
-      if (!val) return;
-      const n = String(val).trim();
-      if (!n) return;
-      nameInput.value = n;
-      paperTitle.textContent = n;
-      doSave(n);
-    });
-  }
+          if (quiet) return
+          openDialog({
+            title: '给答题纸起个名字',
+            icon: 'info',
+            message: '名称会立刻存档，之后可以在左侧记录里按名称查找、排序。',
+            input: {
+              value: '申论练习 ' + fmtStamp(),
+              placeholder: '例如：2024 省考 A 卷 第三题',
+            },
+            confirmText: '保存',
+            cancelText: '取消',
+          }).then(function (val) {
+            if (!val) return
+            const n = String(val).trim()
+            if (!n) return
+            nameInput.value = n
+            paperTitle.textContent = n
+            doSave(n)
+          })
+        }
 
-  function loadPaper(id) {
-    const p = findPaper(id);
-    if (!p) return;
-    if (p.id === activeId) return;
+        // 当前答题纸上的文字（按格子顺序拼起来，空格子跳过）
+        function stateText() {
+          let s = ''
+          for (let i = 0; i < state.length; i++) if (state[i]) s += state[i]
+          return s
+        }
 
-    stashHistory();
+        // 用隐藏的 textarea + execCommand 兜底：file:// 下没有剪贴板 API 时也能复制
+        function copyViaTextarea(str) {
+          const ta = document.createElement('textarea')
+          ta.value = str
+          ta.setAttribute('readonly', 'readonly')
+          ta.style.position = 'fixed'
+          ta.style.top = '0'
+          ta.style.left = '-9999px'
+          document.body.appendChild(ta)
 
-    const n = Math.max(1, Math.min(200, p.rows || 40));
-    const total = n * COLS;
-    const arr = new Array(total).fill('');
-    const data = p.data || {};
-    for (const k in data) {
-      if (!Object.prototype.hasOwnProperty.call(data, k)) continue;
-      const i = Number(k);
-      if (i >= 0 && i < total) arr[i] = String(data[k]);
-    }
+          let ok = false
+          const sel = window.getSelection ? window.getSelection() : null
+          const savedRanges = []
+          if (sel) {
+            for (let i = 0; i < sel.rangeCount; i++) savedRanges.push(sel.getRangeAt(i))
+          }
 
-    rows = n;
-    rowsInput.value = n;
-    state = arr;
-    activeId = p.id;
-    dirty = false;
+          ta.select()
+          if (ta.setSelectionRange) ta.setSelectionRange(0, ta.value.length)
+          try {
+            ok = document.execCommand('copy')
+          } catch (e) {
+            ok = false
+          }
 
-    buildDOM();
-    restoreHistory(p.id);
-    skipNameDirty = true;
-    nameInput.value = p.name;
-    skipNameDirty = false;
+          if (ta.parentNode) ta.parentNode.removeChild(ta)
 
-    updateHeader();
-    renderList();
-    setDrawer(false);
-    focusCell(0);
-    toast('已打开「' + p.name + '」');
-  }
+          // 还原原来的选区与光标
+          if (sel) {
+            sel.removeAllRanges()
+            for (const r of savedRanges) sel.addRange(r)
+          }
+          return ok
+        }
 
-  // 把编辑区重置成一张干净的新答题纸（不涉及保存）
-  function startFresh(name) {
-    stashHistory();
+        // 把当前答题纸的内容以纯文本放进剪贴板，之后可以直接 Ctrl+V 粘贴
+        function copyText() {
+          const str = stateText()
+          if (!str.length) {
+            toast('这张答题纸还是空的，没有可复制的内容')
+            return
+          }
 
-    clearTimeout(saveTimer);
-    rows = parseInt(rowsInput.value, 10) || rows || 40;
-    state = new Array(rows * COLS).fill('');
-    activeId = null;
-    dirty = false;
+          const done = function () {
+            toast('已复制 ' + str.length + ' 个字，可以直接 Ctrl+V 粘贴')
+          }
+          const fallback = function () {
+            if (copyViaTextarea(str)) done()
+            else toast('复制失败，请手动选中内容后按 Ctrl+C')
+          }
 
-    buildDOM();
-    restoreHistory(null);
-    skipNameDirty = true;
-    nameInput.value = name || '';
-    skipNameDirty = false;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(str).then(done, fallback)
+          } else {
+            fallback()
+          }
+        }
 
-    updateHeader();
-    renderList();
-    setDrawer(false);
-    focusCell(0);
-  }
+        function loadPaper(id) {
+          const p = findPaper(id)
+          if (!p) return
+          if (p.id === activeId) return
+          stashHistory()
 
-  // 问用户要一个名称：确认返回名称字符串，取消返回 ''
-  function askNewName() {
-    return openDialog({
-      title: '给新答题纸起个名字',
-      icon: 'info',
-      message: '名称会立刻存档，之后随时可以改。<br>' +
-               '直接用默认名称也可以，点「开始作答」就行。',
-      input: {
-        value: '申论练习 ' + fmtStamp(),
-        placeholder: '例如：2024 省考 A 卷 第三题'
-      },
-      confirmText: '开始作答',
-      cancelText: '取消',
-      restoreFocus: false
-    }).then(function (val) {
-      return val ? String(val).trim() : '';
-    });
-  }
+          const n = Math.max(1, Math.min(200, p.rows || 40))
+          const total = n * COLS
+          const arr = new Array(total).fill('')
+          const data = p.data || {}
+          for (const k in data) {
+            if (!Object.prototype.hasOwnProperty.call(data, k)) continue
+            const i = Number(k)
+            if (i >= 0 && i < total) arr[i] = String(data[k])
+          }
 
-  function newPaper() {
-    guardUnsaved('新建').then(function (go) {
-      if (!go) return;
-      askNewName().then(function (name) {
-        if (!name) return;              // 取消：不改动当前内容
-        startFresh(name);
-        doSave(name);                   // 先把这份空答题纸落档，避免刷新丢失
-        focusCell(0);
-        toast('已新建「' + name + '」');
-      });
-    });
-  }
+          rows = n
+          rowsInput.value = n
+          state = arr
+          activeId = p.id
+          dirty = false
 
-  function deletePaper(id) {
-    const p = findPaper(id);
-    if (!p) return;
+          buildDOM()
+          restoreHistory(p.id)
+          skipNameDirty = true
+          nameInput.value = p.name
+          skipNameDirty = false
 
-    const isCurrent = (p.id === activeId);
-    openDialog({
-      title: '删除这份记录？',
-      icon: 'danger',
-      danger: true,
-      message: '将要删除 <b>「' + esc(p.name) + '」</b>（' + (p.wordCount || 0) + ' 字，' +
-               fmtTime(p.updatedAt) + '）。<br>删除后无法恢复。' +
-               (isCurrent ? '<br><br>它正是你当前正在编辑的这份，删除后画面会清空。' : ''),
-      confirmText: '删除',
-      cancelText: '取消'
-    }).then(function (okVal) {
-      if (!okVal) return;
-      papers = papers.filter(function (x) { return x.id !== id; });
-      if (activeId === id) {
-        startFresh('');
-        toast('已删除「' + p.name + '」，可从左侧「＋ 新建」再开一张');
-      } else {
-        toast('已删除「' + p.name + '」');
-      }
-      persist();
-      updateHeader();
-      renderList();
-    });
-  }
+          updateHeader()
+          renderList()
+          setDrawer(false)
+          focusCell(0)
+          toast('已打开「' + p.name + '」')
+        }
 
-  /* ==================================================================
+        // 把编辑区重置成一张干净的新答题纸（不涉及保存）
+        function startFresh(name) {
+          stashHistory()
+
+          clearTimeout(saveTimer)
+          rows = parseInt(rowsInput.value, 10) || rows || 40
+          state = new Array(rows * COLS).fill('')
+          activeId = null
+          dirty = false
+
+          buildDOM()
+          restoreHistory(null)
+          skipNameDirty = true
+          nameInput.value = name || ''
+          skipNameDirty = false
+
+          updateHeader()
+          renderList()
+          setDrawer(false)
+          focusCell(0)
+        }
+
+        // 问用户要一个名称：确认返回名称字符串，取消返回 ''
+        function askNewName() {
+          return openDialog({
+            title: '给新答题纸起个名字',
+            icon: 'info',
+            message:
+              '名称会立刻存档，之后随时可以改。<br>' + '直接用默认名称也可以，点「开始作答」就行。',
+            input: {
+              value: '申论练习 ' + fmtStamp(),
+              placeholder: '例如：2024 省考 A 卷 第三题',
+            },
+            confirmText: '开始作答',
+            cancelText: '取消',
+            restoreFocus: false,
+          }).then(function (val) {
+            return val ? String(val).trim() : ''
+          })
+        }
+
+        function newPaper() {
+          guardUnsaved('新建').then(function (go) {
+            if (!go) return
+            askNewName().then(function (name) {
+              if (!name) return // 取消：不改动当前内容
+              startFresh(name)
+              doSave(name) // 先把这份空答题纸落档，避免刷新丢失
+              focusCell(0)
+              toast('已新建「' + name + '」')
+            })
+          })
+        }
+
+        function deletePaper(id) {
+          const p = findPaper(id)
+          if (!p) return
+
+          const isCurrent = p.id === activeId
+          openDialog({
+            title: '删除这份记录？',
+            icon: 'danger',
+            danger: true,
+            message:
+              '将要删除 <b>「' +
+              esc(p.name) +
+              '」</b>（' +
+              (p.wordCount || 0) +
+              ' 字，' +
+              fmtTime(p.updatedAt) +
+              '）。<br>删除后无法恢复。' +
+              (isCurrent ? '<br><br>它正是你当前正在编辑的这份，删除后画面会清空。' : ''),
+            confirmText: '删除',
+            cancelText: '取消',
+          }).then(function (okVal) {
+            if (!okVal) return
+            papers = papers.filter(function (x) {
+              return x.id !== id
+            })
+            if (activeId === id) {
+              startFresh('')
+              toast('已删除「' + p.name + '」，可从左侧「＋ 新建」再开一张')
+            } else {
+              toast('已删除「' + p.name + '」')
+            }
+            persist()
+            updateHeader()
+            renderList()
+          })
+        }
+
+        /* ==================================================================
      侧边栏渲染
      ================================================================== */
-  function updateHeader() {
-    const p = activeId ? findPaper(activeId) : null;
+        function updateHeader() {
+          const p = activeId ? findPaper(activeId) : null
 
-    if (p) {
-      paperTitle.textContent = p.name;
-      document.title = p.name + ' · 申论答题纸';
-      saveBtn.textContent = dirty ? '保存 •' : '已保存';
-      saveBtn.classList.toggle('primary', dirty);
-    } else {
-      paperTitle.textContent = nameInput.value.trim() || '申论答题纸';
-      document.title = '申论答题纸 · 每行25格';
-      saveBtn.textContent = '保存';
-      saveBtn.classList.toggle('primary', true);
-    }
-  }
+          if (p) {
+            paperTitle.textContent = p.name
+            document.title = p.name + ' · 申论答题纸'
+            saveBtn.textContent = dirty ? '保存 •' : '已保存'
+            saveBtn.classList.toggle('primary', dirty)
+          } else {
+            paperTitle.textContent = nameInput.value.trim() || '申论答题纸'
+            document.title = '申论答题纸 · 每行25格'
+            saveBtn.textContent = '保存'
+            saveBtn.classList.toggle('primary', true)
+          }
+        }
 
-  function sortedPapers() {
-    const list = papers.slice();
-    list.sort(function (a, b) {
-      switch (sortMode) {
-        case 'time-asc':     return a.updatedAt - b.updatedAt;
-        case 'name-asc':     return a.name.localeCompare(b.name, 'zh-Hans-CN');
-        case 'name-desc':    return b.name.localeCompare(a.name, 'zh-Hans-CN');
-        case 'created-desc': return b.createdAt - a.createdAt;
-        default:             return b.updatedAt - a.updatedAt;
-      }
-    });
-    return list;
-  }
+        function sortedPapers() {
+          const list = papers.slice()
+          list.sort(function (a, b) {
+            switch (sortMode) {
+              case 'time-asc':
+                return a.updatedAt - b.updatedAt
+              case 'name-asc':
+                return a.name.localeCompare(b.name, 'zh-Hans-CN')
+              case 'name-desc':
+                return b.name.localeCompare(a.name, 'zh-Hans-CN')
+              case 'created-desc':
+                return b.createdAt - a.createdAt
+              default:
+                return b.updatedAt - a.updatedAt
+            }
+          })
+          return list
+        }
 
-  function snippetOf(text, term) {
-    const lower = text.toLowerCase();
-    const i = lower.indexOf(term.toLowerCase());
-    if (i < 0) return '';
-    // 转成码点数组，避免把代理对（如 emoji）从中间切断
-    const chars = Array.from(text);
-    let pos = 0, cpStart = -1, cpEnd = chars.length;
-    for (let k = 0; k < chars.length; k++) {
-      const next = pos + chars[k].length;
-      if (cpStart < 0 && next > i) cpStart = k;
-      if (next >= i + term.length) { cpEnd = k + 1; break; }
-      pos = next;
-    }
-    if (cpStart < 0) cpStart = 0;
-    const from = Math.max(0, cpStart - 10);
-    const to = Math.min(chars.length, cpEnd + 10);
-    return (from > 0 ? '…' : '') +
-           esc(chars.slice(from, cpStart).join('')) +
-           '<b>' + esc(chars.slice(cpStart, cpEnd).join('')) + '</b>' +
-           esc(chars.slice(cpEnd, to).join('')) +
-           (to < chars.length ? '…' : '');
-  }
+        function snippetOf(text, term) {
+          const lower = text.toLowerCase()
+          const i = lower.indexOf(term.toLowerCase())
+          if (i < 0) return ''
+          // 转成码点数组，避免把代理对（如 emoji）从中间切断
+          const chars = Array.from(text)
+          let pos = 0,
+            cpStart = -1,
+            cpEnd = chars.length
+          for (let k = 0; k < chars.length; k++) {
+            const next = pos + chars[k].length
+            if (cpStart < 0 && next > i) cpStart = k
+            if (next >= i + term.length) {
+              cpEnd = k + 1
+              break
+            }
+            pos = next
+          }
+          if (cpStart < 0) cpStart = 0
+          const from = Math.max(0, cpStart - 10)
+          const to = Math.min(chars.length, cpEnd + 10)
+          return (
+            (from > 0 ? '…' : '') +
+            esc(chars.slice(from, cpStart).join('')) +
+            '<b>' +
+            esc(chars.slice(cpStart, cpEnd).join('')) +
+            '</b>' +
+            esc(chars.slice(cpEnd, to).join('')) +
+            (to < chars.length ? '…' : '')
+          )
+        }
 
-  function paperHTML(p, term) {
-    const txt = term ? paperText(p) : '';
-    const snip = term ? snippetOf(txt, term) : '';
-    const cnt = (typeof p.wordCount === 'number') ? p.wordCount : Object.keys(p.data || {}).length;
-    return '<div class="paper-item' + (p.id === activeId ? ' active' : '') +
-           '" data-id="' + p.id + '" title="' + esc(p.name) + '">' +
-             '<div class="pi-row1">' +
-               '<div class="pi-name">' + esc(p.name) + '</div>' +
-               (dirty && p.id === activeId ? '<span class="pi-badge">未保存</span>' : '') +
-               '<button class="pi-del" type="button" data-del="' + p.id + '" title="删除">×</button>' +
-             '</div>' +
-             '<div class="pi-row2"><span>' + cnt + ' 字</span><span>' + fmtTime(p.updatedAt) + '</span></div>' +
-             (snip ? '<div class="pi-snippet">' + snip + '</div>' : '') +
-           '</div>';
-  }
+        function paperHTML(p, term) {
+          const txt = term ? paperText(p) : ''
+          const snip = term ? snippetOf(txt, term) : ''
+          const cnt =
+            typeof p.wordCount === 'number' ? p.wordCount : Object.keys(p.data || {}).length
+          return (
+            '<div class="paper-item' +
+            (p.id === activeId ? ' active' : '') +
+            '" data-id="' +
+            p.id +
+            '" title="' +
+            esc(p.name) +
+            '">' +
+            '<div class="pi-row1">' +
+            '<div class="pi-name">' +
+            esc(p.name) +
+            '</div>' +
+            (dirty && p.id === activeId ? '<span class="pi-badge">未保存</span>' : '') +
+            '<button class="pi-del" type="button" data-del="' +
+            p.id +
+            '" title="删除">×</button>' +
+            '</div>' +
+            '<div class="pi-row2"><span>' +
+            cnt +
+            ' 字</span><span>' +
+            fmtTime(p.updatedAt) +
+            '</span></div>' +
+            (snip ? '<div class="pi-snippet">' + snip + '</div>' : '') +
+            '</div>'
+          )
+        }
 
-  function renderList() {
-    const term = searchTerm.trim();
-    let list = sortedPapers();
+        function renderList() {
+          const term = searchTerm.trim()
+          let list = sortedPapers()
 
-    if (term) {
-      const lower = term.toLowerCase();
-      list = list.filter(function (p) {
-        return p.name.toLowerCase().indexOf(lower) >= 0 ||
-               paperText(p).toLowerCase().indexOf(lower) >= 0;
-      });
-    }
+          if (term) {
+            const lower = term.toLowerCase()
+            list = list.filter(function (p) {
+              return (
+                p.name.toLowerCase().indexOf(lower) >= 0 ||
+                paperText(p).toLowerCase().indexOf(lower) >= 0
+              )
+            })
+          }
 
-    if (!list.length) {
-      paperListEl.innerHTML = '<div class="empty">' +
-        (term ? '没有找到匹配的答题纸<br>换个关键词试试' :
-                '还没有保存的答题纸<br>写完内容后点「保存」即可留档') +
-        '</div>';
-      return;
-    }
+          if (!list.length) {
+            paperListEl.innerHTML =
+              '<div class="empty">' +
+              (term
+                ? '没有找到匹配的答题纸<br>换个关键词试试'
+                : '还没有保存的答题纸<br>写完内容后点「保存」即可留档') +
+              '</div>'
+            return
+          }
 
-    paperListEl.innerHTML = list.map(function (p) { return paperHTML(p, term); }).join('');
-  }
+          paperListEl.innerHTML = list
+            .map(function (p) {
+              return paperHTML(p, term)
+            })
+            .join('')
+        }
 
-  // 只刷新列表里的高亮与“未保存”角标，避免每次按键整表重绘
-  function updateActiveBadge() {
-    const items = paperListEl.querySelectorAll('.paper-item');
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const isActive = item.dataset.id === activeId;
-      item.classList.toggle('active', isActive);
-      const row1 = item.querySelector('.pi-row1');
-      const badge = item.querySelector('.pi-badge');
-      if (isActive && dirty && !badge && row1) {
-        const span = document.createElement('span');
-        span.className = 'pi-badge';
-        span.textContent = '未保存';
-        row1.insertBefore(span, row1.querySelector('.pi-del'));
-      } else if ((!isActive || !dirty) && badge) {
-        badge.remove();
-      }
-    }
-  }
+        // 只刷新列表里的高亮与“未保存”角标，避免每次按键整表重绘
+        function updateActiveBadge() {
+          const items = paperListEl.querySelectorAll('.paper-item')
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i]
+            const isActive = item.dataset.id === activeId
+            item.classList.toggle('active', isActive)
+            const row1 = item.querySelector('.pi-row1')
+            const badge = item.querySelector('.pi-badge')
+            if (isActive && dirty && !badge && row1) {
+              const span = document.createElement('span')
+              span.className = 'pi-badge'
+              span.textContent = '未保存'
+              row1.insertBefore(span, row1.querySelector('.pi-del'))
+            } else if ((!isActive || !dirty) && badge) {
+              badge.remove()
+            }
+          }
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      导入 / 导出
      ================================================================== */
-  function exportData() {
-    if (!papers.length) {
-      alertDialog('还没有可以导出的内容', '先在左侧保存至少一份答题纸，再导出备份文件。');
-      return;
-    }
-    if (dirty && isSaved()) autosave();
+        function exportData() {
+          if (!papers.length) {
+            alertDialog('还没有可以导出的内容', '先在左侧保存至少一份答题纸，再导出备份文件。')
+            return
+          }
+          if (dirty && isSaved()) autosave()
 
-    const payload = {
-      app: 'shenlun-answer-sheet',
-      version: 1,
-      exportedAt: Date.now(),
-      papers: papers
-    };
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const d = new Date();
-    const p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
-    a.href = url;
-    a.download = '申论答题纸备份_' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    toast('已导出 ' + papers.length + ' 份记录');
-  }
+          const payload = {
+            app: 'shenlun-answer-sheet',
+            version: 1,
+            exportedAt: Date.now(),
+            papers: papers,
+          }
+          const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          const d = new Date()
+          const p2 = function (n) {
+            return n < 10 ? '0' + n : '' + n
+          }
+          a.href = url
+          a.download =
+            '申论答题纸备份_' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '.json'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          setTimeout(function () {
+            URL.revokeObjectURL(url)
+          }, 4000)
+          toast('已导出 ' + papers.length + ' 份记录')
+        }
 
-  function normalizeImported(p) {
-    if (!p || typeof p !== 'object') return null;
-    const name = typeof p.name === 'string' && p.name.trim() ? p.name.trim() : '导入的答题纸';
-    let r = parseInt(p.rows, 10);
-    if (isNaN(r) || r < 1 || r > 200) r = 40;
-    let data = {};
-    if (p.data && typeof p.data === 'object') {
-      for (const k in p.data) {
-        if (!Object.prototype.hasOwnProperty.call(p.data, k)) continue;
-        const i = Number(k);
-        if (i >= 0 && i < r * COLS && p.data[k]) data[i] = String(p.data[k]);
-      }
-    }
-    const now = Date.now();
-    return {
-      id: uid(),
-      name: name,
-      rows: r,
-      data: data,
-      createdAt: typeof p.createdAt === 'number' ? p.createdAt : now,
-      updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : now
-    };
-  }
+        function normalizeImported(p) {
+          if (!p || typeof p !== 'object') return null
+          const name = typeof p.name === 'string' && p.name.trim() ? p.name.trim() : '导入的答题纸'
+          let r = parseInt(p.rows, 10)
+          if (isNaN(r) || r < 1 || r > 200) r = 40
+          let data = {}
+          if (p.data && typeof p.data === 'object') {
+            for (const k in p.data) {
+              if (!Object.prototype.hasOwnProperty.call(p.data, k)) continue
+              const i = Number(k)
+              if (i >= 0 && i < r * COLS && p.data[k]) data[i] = String(p.data[k])
+            }
+          }
+          const now = Date.now()
+          return {
+            id: uid(),
+            name: name,
+            rows: r,
+            data: data,
+            createdAt: typeof p.createdAt === 'number' ? p.createdAt : now,
+            updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : now,
+          }
+        }
 
-  function importData(file) {
-    if (!file) return;
-    if (!/\.json$/i.test(file.name || '') && file.type && file.type.indexOf('json') < 0) {
-      alertDialog('这个文件读不了', '请选择由本页「导出备份」生成的 <b>.json</b> 备份文件。', 'warn');
-      return;
-    }
+        function importData(file) {
+          if (!file) return
+          if (!/\.json$/i.test(file.name || '') && file.type && file.type.indexOf('json') < 0) {
+            alertDialog(
+              '这个文件读不了',
+              '请选择由本页「导出备份」生成的 <b>.json</b> 备份文件。',
+              'warn'
+            )
+            return
+          }
 
-    const reader = new FileReader();
-    reader.onload = function () {
-      let payload;
-      try {
-        payload = JSON.parse(String(reader.result));
-      } catch (e) {
-        alertDialog('导入失败', '这个文件不是有效的 JSON，可能已损坏或选错了文件。', 'warn');
-        return;
-      }
-      let arr = null;
-      if (Array.isArray(payload)) arr = payload;
-      else if (payload && Array.isArray(payload.papers)) arr = payload.papers;
-      else if (payload && typeof payload === 'object') arr = [payload];
+          const reader = new FileReader()
+          reader.onload = function () {
+            let payload
+            try {
+              payload = JSON.parse(String(reader.result))
+            } catch (e) {
+              alertDialog('导入失败', '这个文件不是有效的 JSON，可能已损坏或选错了文件。', 'warn')
+              return
+            }
+            let arr = null
+            if (Array.isArray(payload)) arr = payload
+            else if (payload && Array.isArray(payload.papers)) arr = payload.papers
+            else if (payload && typeof payload === 'object') arr = [payload]
 
-      if (!arr || !arr.length) {
-        alertDialog('导入失败', '文件里没有找到任何答题纸数据。', 'warn');
-        return;
-      }
+            if (!arr || !arr.length) {
+              alertDialog('导入失败', '文件里没有找到任何答题纸数据。', 'warn')
+              return
+            }
 
-      const clean = arr.map(normalizeImported).filter(Boolean);
-      if (!clean.length) {
-        alertDialog('导入失败', '数据格式不正确，无法识别其中的答题纸。', 'warn');
-        return;
-      }
+            const clean = arr.map(normalizeImported).filter(Boolean)
+            if (!clean.length) {
+              alertDialog('导入失败', '数据格式不正确，无法识别其中的答题纸。', 'warn')
+              return
+            }
 
-      // 同名去重（保留已有的，导入的加后缀）
-      const used = {};
-      papers.forEach(function (p) { used[p.name] = true; });
-      clean.forEach(function (p) {
-        let n = p.name, i = 2;
-        while (used[n]) { n = p.name + ' (' + i + ')'; i++; }
-        p.name = n;
-        used[n] = true;
-      });
+            // 同名去重（保留已有的，导入的加后缀）
+            const used = {}
+            papers.forEach(function (p) {
+              used[p.name] = true
+            })
+            clean.forEach(function (p) {
+              let n = p.name,
+                i = 2
+              while (used[n]) {
+                n = p.name + ' (' + i + ')'
+                i++
+              }
+              p.name = n
+              used[n] = true
+            })
 
-      papers = papers.concat(clean);
-      if (persist()) {
-        renderList();
-        toast('已导入 ' + clean.length + ' 份记录');
-      }
-    };
-    reader.onerror = function () {
-      alertDialog('导入失败', '读取文件时出错了，请重试或换一个文件。', 'warn');
-    };
-    reader.readAsText(file);
-  }
+            papers = papers.concat(clean)
+            if (persist()) {
+              renderList()
+              toast('已导入 ' + clean.length + ' 份记录')
+            }
+          }
+          reader.onerror = function () {
+            alertDialog('导入失败', '读取文件时出错了，请重试或换一个文件。', 'warn')
+          }
+          reader.readAsText(file)
+        }
 
-  /* ==================================================================
+        /* ==================================================================
      事件绑定
      ================================================================== */
-  gridEl.addEventListener('focusin', function (e) {
-    if (e.target.tagName !== 'INPUT') return;
-    const inp = e.target;
-    setActive(Number(inp.dataset.idx));
-    setTimeout(function () {
-      if (!inp.isConnected) return;
-      try { inp.setSelectionRange(0, inp.value.length); } catch (err) {}
-    }, 0);
-  });
+        gridEl.addEventListener('focusin', function (e) {
+          if (e.target.tagName !== 'INPUT') return
+          const inp = e.target
+          setActive(Number(inp.dataset.idx))
+          setTimeout(function () {
+            if (!inp.isConnected) return
+            try {
+              inp.setSelectionRange(0, inp.value.length)
+            } catch (err) {}
+          }, 0)
+        })
 
-  gridEl.addEventListener('compositionstart', function () {
-    composing = true;
-  });
+        gridEl.addEventListener('compositionstart', function () {
+          composing = true
+        })
 
-  gridEl.addEventListener('compositionend', function (e) {
-    composing = false;
-    const inp = e.target;
-    if (!inp || inp.tagName !== 'INPUT') return;
-    setTimeout(function () {
-      if (!inp.isConnected) return;
-      const idx = Number(inp.dataset.idx);
-      if (inp.value !== (state[idx] || '')) {
-        processValue(inp);
-      }
-    }, 0);
-  });
+        gridEl.addEventListener('compositionend', function (e) {
+          composing = false
+          const inp = e.target
+          if (!inp || inp.tagName !== 'INPUT') return
+          setTimeout(function () {
+            if (!inp.isConnected) return
+            const idx = Number(inp.dataset.idx)
+            if (inp.value !== (state[idx] || '')) {
+              processValue(inp)
+            }
+          }, 0)
+        })
 
-  gridEl.addEventListener('input', function (e) {
-    const inp = e.target;
-    if (inp.tagName !== 'INPUT') return;
-    if (composing || e.isComposing) return;
-    processValue(inp);
-  });
+        gridEl.addEventListener('input', function (e) {
+          const inp = e.target
+          if (inp.tagName !== 'INPUT') return
+          if (composing || e.isComposing) return
+          processValue(inp)
+        })
 
-  gridEl.addEventListener('keydown', function (e) {
-    const inp = e.target;
-    if (!inp || inp.tagName !== 'INPUT') return;
+        gridEl.addEventListener('keydown', function (e) {
+          const inp = e.target
+          if (!inp || inp.tagName !== 'INPUT') return
 
-    const idx = Number(inp.dataset.idx);
-    const mod = e.ctrlKey || e.metaKey;
+          const idx = Number(inp.dataset.idx)
+          const mod = e.ctrlKey || e.metaKey
 
-    if (mod && (e.key === 'z' || e.key === 'Z')) {
-      e.preventDefault();
-      if (e.shiftKey) redo(); else undo();
-      return;
-    }
-    if (mod && (e.key === 'y' || e.key === 'Y')) {
-      e.preventDefault();
-      redo();
-      return;
-    }
-    if (mod) return;
+          if (mod && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault()
+            if (e.shiftKey) redo()
+            else undo()
+            return
+          }
+          if (mod && (e.key === 'y' || e.key === 'Y')) {
+            e.preventDefault()
+            redo()
+            return
+          }
+          if (mod) return
 
-    switch (e.key) {
-      case 'Backspace':
-        e.preventDefault();
-        handleBackspace(idx);
-        break;
-      case 'Delete':
-        e.preventDefault();
-        handleDelete(idx);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        focusCell(idx + COLS);
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        focusCell(idx - 1);
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        focusCell(idx + 1);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        focusCell(idx - COLS);
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        focusCell(idx + COLS);
-        break;
-      case 'Home':
-        e.preventDefault();
-        focusCell(idx - (idx % COLS));
-        break;
-      case 'End':
-        e.preventDefault();
-        focusCell(idx - (idx % COLS) + COLS - 1);
-        break;
-      case 'Tab':
-        e.preventDefault();
-        if (e.shiftKey) focusCell(idx - 1);
-        else focusCell(idx + 1);
-        break;
-      default:
-        break;
-    }
-  });
+          switch (e.key) {
+            case 'Backspace':
+              e.preventDefault()
+              handleBackspace(idx)
+              break
+            case 'Delete':
+              e.preventDefault()
+              handleDelete(idx)
+              break
+            case 'Enter':
+              e.preventDefault()
+              focusCell(idx + COLS)
+              break
+            case 'ArrowLeft':
+              e.preventDefault()
+              focusCell(idx - 1)
+              break
+            case 'ArrowRight':
+              e.preventDefault()
+              focusCell(idx + 1)
+              break
+            case 'ArrowUp':
+              e.preventDefault()
+              focusCell(idx - COLS)
+              break
+            case 'ArrowDown':
+              e.preventDefault()
+              focusCell(idx + COLS)
+              break
+            case 'Home':
+              e.preventDefault()
+              focusCell(idx - (idx % COLS))
+              break
+            case 'End':
+              e.preventDefault()
+              focusCell(idx - (idx % COLS) + COLS - 1)
+              break
+            case 'Tab':
+              e.preventDefault()
+              if (e.shiftKey) focusCell(idx - 1)
+              else focusCell(idx + 1)
+              break
+            default:
+              break
+          }
+        })
 
-  gridEl.addEventListener('paste', function (e) {
-    const inp = e.target;
-    if (!inp || inp.tagName !== 'INPUT') return;
-    e.preventDefault();
+        gridEl.addEventListener('paste', function (e) {
+          const inp = e.target
+          if (!inp || inp.tagName !== 'INPUT') return
+          e.preventDefault()
 
-    const text = (e.clipboardData || window.clipboardData).getData('text') || '';
-    const chars = Array.from(text).filter(function (c) {
-      return c !== '\n' && c !== '\r' && c !== '\t';
-    });
-    if (!chars.length) return;
+          const text = (e.clipboardData || window.clipboardData).getData('text') || ''
+          const chars = Array.from(text).filter(function (c) {
+            return c !== '\n' && c !== '\r' && c !== '\t'
+          })
+          if (!chars.length) return
 
-    const idx = Number(inp.dataset.idx);
-    insertChars(idx, chars);
-  });
+          const idx = Number(inp.dataset.idx)
+          insertChars(idx, chars)
+        })
 
-  /* ---------------- 工具栏 ---------------- */
-  function setRows(n) {
-    n = parseInt(n, 10);
-    if (isNaN(n)) n = rows;
-    n = Math.max(1, Math.min(200, n));
-    rowsInput.value = n;
-    if (n === rows) return;
-    rows = n;
+        /* ---------------- 工具栏 ---------------- */
+        function setRows(n) {
+          n = parseInt(n, 10)
+          if (isNaN(n)) n = rows
+          n = Math.max(1, Math.min(200, n))
+          rowsInput.value = n
+          if (n === rows) return
+          rows = n
 
-    const total = rows * COLS;
-    while (state.length < total) state.push('');
-    if (state.length > total) state.length = total;
+          const total = rows * COLS
+          while (state.length < total) state.push('')
+          if (state.length > total) state.length = total
 
-    // 行列结构变化后，旧的撤销记录索引不再可靠
-    undoStack.length = 0;
-    redoStack.length = 0;
-    undoBaseline = 0;
-    undoHistory.delete(activeId || DRAFT_KEY);
+          // 行列结构变化后，旧的撤销记录索引不再可靠
+          undoStack.length = 0
+          redoStack.length = 0
+          undoBaseline = 0
+          undoHistory.delete(activeId || DRAFT_KEY)
 
-    buildDOM();
-    markDirty();
-  }
+          buildDOM()
+          markDirty()
+        }
 
-  rowsInput.addEventListener('change', function () { setRows(this.value); });
-  rowsInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { this.blur(); setRows(this.value); }
-  });
+        rowsInput.addEventListener('change', function () {
+          setRows(this.value)
+        })
+        rowsInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            this.blur()
+            setRows(this.value)
+          }
+        })
 
-  nameInput.addEventListener('input', function () {
-    if (skipNameDirty) return;
-    paperTitle.textContent = this.value.trim() || '申论答题纸';
-    updateHeader();
-  });
-  nameInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { e.preventDefault(); savePaper(); this.blur(); }
-  });
+        nameInput.addEventListener('input', function () {
+          if (skipNameDirty) return
+          paperTitle.textContent = this.value.trim() || '申论答题纸'
+          updateHeader()
+        })
+        nameInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            savePaper()
+            this.blur()
+          }
+        })
 
-  saveBtn.addEventListener('click', function () {
-    // 已经有名字就直接存档；否则弹窗补名字，由弹窗流程接管焦点
-    if (nameInput.value.trim()) focusCell(activeIdx < 0 ? 0 : activeIdx);
-    savePaper();
-  });
+        saveBtn.addEventListener('click', function () {
+          // 已经有名字就直接存档；否则弹窗补名字，由弹窗流程接管焦点
+          if (nameInput.value.trim()) focusCell(activeIdx < 0 ? 0 : activeIdx)
+          savePaper()
+        })
 
-  undoBtn.addEventListener('click', function () { undo(); gridEl.focus(); });
-  redoBtn.addEventListener('click', function () { redo(); gridEl.focus(); });
+        copyBtn.addEventListener('click', function () {
+          copyText()
+        })
 
-  clearBtn.addEventListener('click', function () {
-    const n = countChars(state);
-    if (!n) { toast('当前答题纸已经是空的'); return; }
+        undoBtn.addEventListener('click', function () {
+          undo()
+          gridEl.focus()
+        })
+        redoBtn.addEventListener('click', function () {
+          redo()
+          gridEl.focus()
+        })
 
-    openDialog({
-      title: '清空这张答题纸？',
-      icon: 'warn',
-      danger: true,
-      message: '将清除当前答题纸上的 <b>' + n + '</b> 个字，' +
-               '答题纸本身和名称都会保留。<br>清空之后可以用 <b>Ctrl + Z</b> 撤销。',
-      confirmText: '清空',
-      cancelText: '取消'
-    }).then(function (okVal) {
-      if (!okVal) return;
-      const changes = [];
-      for (let i = 0; i < state.length; i++) {
-        if (state[i]) changes.push({ idx: i, ch: '' });
-      }
-      if (changes.length) applyChanges(changes);
-      focusCell(0);
-    });
-  });
+        clearBtn.addEventListener('click', function () {
+          const n = countChars(state)
+          if (!n) {
+            toast('当前答题纸已经是空的')
+            return
+          }
 
-  /* ---------------- 侧边栏 ---------------- */
-  paperListEl.addEventListener('click', function (e) {
-    const del = e.target.closest('[data-del]');
-    if (del) {
-      e.stopPropagation();
-      deletePaper(del.dataset.del);
-      return;
-    }
-    const item = e.target.closest('.paper-item');
-    if (!item) return;
-    const id = item.dataset.id;
-    if (id === activeId) { setDrawer(false); focusCell(0); return; }
-    guardUnsaved('切换答题纸').then(function (go) {
-      if (!go) return;
-      loadPaper(id);
-    });
-  });
+          openDialog({
+            title: '清空这张答题纸？',
+            icon: 'warn',
+            danger: true,
+            message:
+              '将清除当前答题纸上的 <b>' +
+              n +
+              '</b> 个字，' +
+              '答题纸本身和名称都会保留。<br>清空之后可以用 <b>Ctrl + Z</b> 撤销。',
+            confirmText: '清空',
+            cancelText: '取消',
+          }).then(function (okVal) {
+            if (!okVal) return
+            const changes = []
+            for (let i = 0; i < state.length; i++) {
+              if (state[i]) changes.push({ idx: i, ch: '' })
+            }
+            if (changes.length) applyChanges(changes)
+            focusCell(0)
+          })
+        })
 
-  searchInput.addEventListener('input', function () {
-    searchTerm = this.value;
-    savePrefs();
-    renderList();
-  });
+        /* ---------------- 侧边栏 ---------------- */
+        paperListEl.addEventListener('click', function (e) {
+          const del = e.target.closest('[data-del]')
+          if (del) {
+            e.stopPropagation()
+            deletePaper(del.dataset.del)
+            return
+          }
+          const item = e.target.closest('.paper-item')
+          if (!item) return
+          const id = item.dataset.id
+          if (id === activeId) {
+            setDrawer(false)
+            focusCell(0)
+            return
+          }
+          guardUnsaved('切换答题纸').then(function (go) {
+            if (!go) return
+            loadPaper(id)
+          })
+        })
 
-  sortSelect.addEventListener('change', function () {
-    sortMode = this.value;
-    savePrefs();
-    renderList();
-  });
+        searchInput.addEventListener('input', function () {
+          searchTerm = this.value
+          savePrefs()
+          renderList()
+        })
 
-  newBtn.addEventListener('click', newPaper);
-  exportBtn.addEventListener('click', exportData);
-  importBtn.addEventListener('click', function () { importFile.click(); });
-  importFile.addEventListener('change', function () {
-    const f = this.files && this.files[0];
-    if (f) importData(f);
-    this.value = '';
-  });
+        sortSelect.addEventListener('change', function () {
+          sortMode = this.value
+          savePrefs()
+          renderList()
+        })
 
-  menuBtn.addEventListener('click', function () {
-    setDrawer(!document.body.classList.contains('drawer-open'));
-  });
-  backdrop.addEventListener('click', function () { setDrawer(false); });
+        newBtn.addEventListener('click', newPaper)
+        exportBtn.addEventListener('click', exportData)
+        importBtn.addEventListener('click', function () {
+          importFile.click()
+        })
+        importFile.addEventListener('change', function () {
+          const f = this.files && this.files[0]
+          if (f) importData(f)
+          this.value = ''
+        })
 
-  /* ---------------- 全局快捷键 / 自动保存 ---------------- */
-  document.addEventListener('keydown', function (e) {
-    const mod = e.ctrlKey || e.metaKey;
-    if (!mod) {
-      if (e.key === 'Escape') setDrawer(false);
-      return;
-    }
-    if (dlgOpen) return;                 // 弹窗打开时不触发全局操作
-    const k = (e.key || '').toLowerCase();
-    if (k === 's') { e.preventDefault(); savePaper(); }
-    else if (k === 'n' && e.shiftKey) { e.preventDefault(); newPaper(); }
-  });
+        menuBtn.addEventListener('click', function () {
+          setDrawer(!document.body.classList.contains('drawer-open'))
+        })
+        backdrop.addEventListener('click', function () {
+          setDrawer(false)
+        })
 
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden' && dirty && isSaved()) autosave();
-  });
+        /* ---------------- 全局快捷键 / 自动保存 ---------------- */
+        document.addEventListener('keydown', function (e) {
+          const mod = e.ctrlKey || e.metaKey
+          if (!mod) {
+            if (e.key === 'Escape') setDrawer(false)
+            return
+          }
+          if (dlgOpen) return // 弹窗打开时不触发全局操作
+          const k = (e.key || '').toLowerCase()
+          if (k === 's') {
+            e.preventDefault()
+            savePaper()
+          } else if (k === 'n' && e.shiftKey) {
+            e.preventDefault()
+            newPaper()
+          }
+        })
 
-  window.addEventListener('beforeunload', function () {
-    if (dirty && isSaved()) {
-      autosave();
-    } else if (dirty && countChars(state) > 0) {
-      return '当前答题纸尚未保存，确定要离开吗？';
-    }
-    return undefined;
-  });
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'hidden' && dirty && isSaved()) autosave()
+        })
 
-  /* ==================================================================
+        window.addEventListener('beforeunload', function () {
+          if (dirty && isSaved()) {
+            autosave()
+          } else if (dirty && countChars(state) > 0) {
+            return '当前答题纸尚未保存，确定要离开吗？'
+          }
+          return undefined
+        })
+
+        /* ==================================================================
      初始化
      ================================================================== */
-  function init() {
-    checkStorage();
-    loadPrefs();
+        function init() {
+          checkStorage()
+          loadPrefs()
 
-    const store = loadStore();
-    papers = store.papers;
+          const store = loadStore()
+          papers = store.papers
 
-    sortSelect.value = sortMode;
-    searchInput.value = searchTerm;
+          sortSelect.value = sortMode
+          searchInput.value = searchTerm
 
-    rows = parseInt(rowsInput.value, 10) || 40;
-    state = new Array(rows * COLS).fill('');
-    buildDOM();
+          rows = parseInt(rowsInput.value, 10) || 40
+          state = new Array(rows * COLS).fill('')
+          buildDOM()
 
-    updateHeader();
-    renderList();
-    focusCell(0);
+          updateHeader()
+          renderList()
+          focusCell(0)
 
-    if (papers.length) {
-      // 打开最近修改的一份
-      const latest = sortedPapers()[0];
-      if (latest) loadPaper(latest.id);
-    } else {
-      // 第一次使用：先要个名字并落档，之后输入的每一笔改动都会被自动保存
-      askNewName().then(function (name) {
-        if (!name) return;
-        startFresh(name);
-        doSave(name);
-        focusCell(0);
-        toast('已创建「' + name + '」，边写边自动保存');
-      });
-    }
-  }
+          if (papers.length) {
+            // 打开最近修改的一份
+            const latest = sortedPapers()[0]
+            if (latest) loadPaper(latest.id)
+          } else {
+            // 第一次使用：先要个名字并落档，之后输入的每一笔改动都会被自动保存
+            askNewName().then(function (name) {
+              if (!name) return
+              startFresh(name)
+              doSave(name)
+              focusCell(0)
+              toast('已创建「' + name + '」，边写边自动保存')
+            })
+          }
+        }
 
-  init();
-
-})();
-</script>
-</body>
+        init()
+      })()
+    </script>
+  </body>
 </html>
