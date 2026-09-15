@@ -1088,6 +1088,22 @@
     focusCell(Math.min(idx + n, total - 1));
   }
 
+  // 直接把一个字填进指定的空格子，不影响其它任何格子
+  function fillCell(idx, ch) {
+    if (idx < 0 || idx >= state.length) return;
+    if (state[idx]) return;
+    applyChanges([{ idx: idx, ch: ch }]);
+    focusCell(idx + 1);
+  }
+
+  // idx 之后是否还有已填的格子
+  function hasContentAfter(idx) {
+    for (let i = idx + 1; i < state.length; i++) {
+      if (state[i]) return true;
+    }
+    return false;
+  }
+
   // 删除 idx 位置的字符，后面的内容整体前移
   function deleteAt(idx) {
     const total = state.length;
@@ -1134,17 +1150,21 @@
       return;
     }
 
+    // 落在空格上且后面已经没有内容：直接填进这一格，不需要推动任何东西
+    if (!prev && chars.length === 1 && !hasContentAfter(idx)) {
+      fillCell(idx, chars[0]);
+      return;
+    }
+
     insertChars(idx, chars);
   }
 
   function handleBackspace(idx) {
-    if (state[idx]) {
-      deleteAt(idx);
-      focusCell(idx);
-    } else if (idx > 0) {
-      deleteAt(idx - 1);
-      focusCell(idx - 1);
-    }
+    if (idx < 0 || idx >= state.length) return;
+    // 退格 = 删除光标所在格：格子有字就删字，是空格就把后面的内容整体前移补位，
+    // 绝不回头去删上一格的内容。
+    deleteAt(idx);
+    focusCell(idx);
   }
 
   function handleDelete(idx) {
