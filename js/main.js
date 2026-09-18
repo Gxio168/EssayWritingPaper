@@ -29,7 +29,6 @@ function init() {
   app.papers = store.papers
 
   dom.sortSelect.value = app.sortMode
-  dom.searchInput.value = app.searchTerm
 
   app.rows = parseInt(dom.rowsInput.value, 10) || 40
   app.cells = new Array(app.rows * COLS).fill('')

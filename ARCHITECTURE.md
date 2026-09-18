@@ -40,9 +40,9 @@ CSS 用 `<link>` 加载，不受此限制——所以只有 JS 这一条约束�
 │   ├── toolbar.css              114  .main 布局、工具栏、通用 .btn 体系、.stat/.hint/.divider
 │   ├── paper.css                 63  纸张容器与 25 格网格（.paper / #grid / .cell）
 │   ├── overlays.css             201  遮罩、#toast、对话框（.modal-layer / .dialog / .dg-*）
-│   └── responsive.css            57  @media 窄屏抽屉 + @media print
+│   └── responsive.css            70  @media 窄屏抽屉 + 触摸设备 + @media print（含 --cell 缩放）
 └── js/
-    ├── main.js                   63  入口：initDom → 绑定事件 → init()
+    ├── main.js                   62  入口：initDom → 绑定事件 → init()
     ├── config.js                 10  只读常量
     ├── state.js                  40  全部共享可变状态（单一 app 对象）
     ├── dom.js                    34  DOM 引用，启动时一次性解析
@@ -55,7 +55,7 @@ CSS 用 `<link>` 加载，不受此限制——所以只有 JS 这一条约束�
     │   ├── dialog.js            146  自定义 confirm/prompt（替代原生弹窗）
     │   └── clipboard.js          72  全文复制（clipboard API + execCommand 兜底）
     ├── storage/
-    │   └── store.js              83  localStorage 读写、清洗、偏好、可用性自检
+    │   └── store.js              84  localStorage 读写、清洗、偏好（只存排序）、可用性自检
     ├── grid/                         网格与编辑引擎（应用的心脏）
     │   ├── build.js              47  buildDOM：整表重建
     │   ├── focus.js              29  setActive / focusCell
@@ -63,7 +63,7 @@ CSS 用 `<link>` 加载，不受此限制——所以只有 JS 这一条约束�
     │   ├── input.js              65  processValue / handleBackspace / handleDelete
     │   ├── undo.js               81  undo / redo / 历史归档与恢复
     │   ├── stat.js               10  字数统计
-    │   └── resize.js             32  setRows（行数变更 + 撤销栈作废）
+    │   └── resize.js             68  setRows（行数变更 + 缩行丢字确认 + 撤销栈作废）
     ├── paper/                        答题纸这一实体的领域逻辑
     │   ├── model.js              30  记录结构与只读查询
     │   ├── header.js             24  标题区与保存按钮三态同步
@@ -194,6 +194,7 @@ base → sidebar → toolbar → paper → overlays → responsive
 | `app.undoBaseline` 记录"本次打开"的栈深度，`undo()` 不许退到它之前 | `grid/undo.js` | 误触 Ctrl+Z 清空刚打开的答题纸 |
 | 切换答题纸必须成对调用 `stashHistory(id)` / `restoreHistory(id)`，未存档草稿用 `DRAFT_KEY` 归档 | `grid/undo.js` + `paper/crud.js` | 来回切换丢历史 |
 | `setRows` 必须整栈作废撤销记录并 `undoHistory.delete()` | `grid/resize.js` | 索引错位，撤销写出乱码 |
+| 正因为上一条让缩行**不可撤销**，`setRows` 在会砍掉文字时必须先弹窗确认，取消则把 `rowsInput` 还原成 `app.rows` | `grid/resize.js` | 静默永久删掉尾部文字（曾是本仓库最严重的数据缺陷） |
 | 未存档（`isSaved()` 为 false）的草稿**永不**自动落盘，只有用户点保存才建档 | `paper/autosave.js` | 空白草稿污染列表 |
 | `processValue` 的三分支顺序：变空 → 删除前移；空格+单字+后面无内容 → 直接填格；其余 → 插入后移 | `grid/input.js` | 书写时推动无关文字，或在文中打洞 |
 | `insertChars` 装不下时**整次拒绝并返回 false**，调用方必须还原输入框（`inp.value = prev`） | `grid/edit.js` + `grid/input.js` | 尾部文字被静默挤出去；或画面与 `cells` 分叉，下次按键比对基准出错 |
@@ -232,18 +233,19 @@ base → sidebar → toolbar → paper → overlays → responsive
   若真要补一个复制快捷键，别用 `Ctrl + Shift + C`（Chrome 保留给 DevTools 元素选取，
   页面 `preventDefault` 不可靠）；`Ctrl + Shift + N` 同理，它会被 Chrome 抢去开无痕窗口，
   现在 `events/global.js` 里那条绑定在非无痕窗口下多半不生效。可用组合：`Ctrl + Alt + C`。
-- **光标模型仍是"一格 = 光标"，不是"光标停在字前/字后"**（已知的手感债，未做）。
-  具体后果：当前格的字被画成整格选中，看上去像"待替换"，而打字其实是**插到它前面**；
-  且无法表达"在这个字后面插入"，要绕到下一格。
-  根因在 `grid/focus.js` 的 `setSelectionRange(0, len)` 全选 + `css/paper.css` 的
-  `caret-color: transparent`。**那个全选是承重的**：它让浏览器把旧字换成新字，
-  `processValue` 才能只看到新输入的字。去掉全选必须同时把 `processValue` 改成对
-  `prev` / `raw` 求公共前后缀 diff，否则会插入 `山高` 这类重复串。
-  动之前先给 `grid/input.js` + `grid/edit.js` 补单测锁行为。
+- **插入/删除的手感仍不符合主流编辑器**：根因是"一格 = 一个焦点位"，删当前格还是删左格
+  无法由界面表达。已决定按**路线 B**（换输入层）解决，见第十节。这条不再当作"遗留"处理。
+- **以下四条已知缺陷刻意留给路线 B 一并修**，因为在当前模型里修完还要在 B 里重写一遍：
+  1. `Tab` 被无条件 `preventDefault`（`events/grid.js`），键盘无法从网格 Tab 到工具栏/侧边栏；
+  2. `undo()` 固定 `focusCell(records[0].idx)`，插入操作撤销后光标跳到离编辑点很远的位置；
+  3. `MAX_UNDO = 500` 溢出时 `shift()` 静默丢最早的历史，无任何提示；
+  4. `25` 写死在 `css/paper.css` 的 `repeat(25, …)` 与 `config.js` 的 `COLS` 两处，
+     改列数时 CSS 静默错位不报错。
 - `events/global.js` 的 `Ctrl + S` / `Ctrl + Shift + N` 与格子里的 `Ctrl + Z/Y` 分属两个
   监听器，靠 `if (mod) return` 和 `app.dlgOpen` 互相让位。将来若要加更多全局键，
   考虑把两套合并成一个按键路由，否则容易互相抢。
 - 没有 lint、没有测试、没有构建步骤。`lib/` 与 `grid/edit.js` 是纯函数，最容易先补上单测。
+  **路线 B 动手前必须先补**（见下节第一步）。
 
 ---
 
@@ -277,3 +279,76 @@ base → sidebar → toolbar → paper → overlays → responsive
 - 粘贴 40 字到 50 格 / 已占 26 字的表 → 整次拒绝；改粘 5 字 → 成功并把后文后移；`Ctrl+Z` 正确回滚
 - `Enter` 从第 0 行第 3 列 → 落到 `idx 25`（下一行行首），改前会落在 `idx 28`（下一行第 3 列）
 - 从行尾 `idx 24` 按 `Enter` → `idx 25`，不越界
+
+### 小问题修复批次（缩行确认 / 触摸删除 / 打印缩放 / 搜索词不再持久化）
+
+同样零控制台报错：
+
+- 2 行写 30 字后改成 1 行 → 弹窗「当前内容需要 **2** 行，改成 **1** 行会丢掉最后 **5** 个字」，
+  且弹窗时网格仍是 50 格、`30 / 50 字`（未提前截断）
+- 点取消 → `rowsInput` 回到 2、50 格、30 字完好；重新确认 → 25 格 / `25 / 25 字`，
+  首格 `一`、末格 `丘`（丢字只在用户明确批准后发生）
+- 内容恰好 25 字时 2 → 1 行：**不弹窗**，直接生效（无字可丢就不该打扰）
+- 搜索"第二"筛到 1 条后刷新 → 搜索框为空、2 条记录全部列出；`shenlun.prefs.v1` 现在只有
+  `{"sort":"time-desc"}`，排序偏好照常保留
+- CSS：`(hover: none) { .pi-del { display: block } }` 与 `print { :root { --cell: 26px } }`
+  都已从 CSSOM 读回，确认被解析器接受而非静默丢弃。
+  **桌面行为已验证未受影响**（该窗口报 `hover: hover`，非选中记录的删除按钮仍为 `display: none`）；
+  触摸设备的常显效果与打印实际不裁列，这个环境验证不了，需要你在真机 / Ctrl+P 里各看一眼。
+
+---
+
+## 十、已定方向：路线 B —— 换掉输入层
+
+### 诊断（为什么必须换，而不是补）
+
+现在文档本质上一直是"字符串 + 一个操作点"，但那个操作点被实现成**当前格 `c`**，
+而程序在不同环节对 `c` 用了两套互斥的解释：
+
+| 环节 | 采用的解释 |
+| --- | --- |
+| 视觉（`setSelectionRange(0, len)` 整格选中） | "这一格的字是**选区**，打字会覆盖它" |
+| 打字（`insertChars(idx, …)`） | "**零宽光标**停在 `idx` 之前，插进去" |
+| 退格（`deleteAt(idx)`） | "删掉选中的那个" —— 实际是 Delete 键的语义 |
+| Delete（`deleteAt(idx)`） | "删掉光标之后的那个" —— 与退格做了同一件事 |
+
+每个操作各自自洽，合起来互相打脸，用户无法形成稳定预期。打字是**侥幸正确**的
+（内部一直是 `p = c` 这套），删除则系统性偏右一格。
+根因不是某行代码写错，而是**缺少 `caret` 与 `selection` 这两个概念**：
+一格只有一个焦点位，"字的左边"和"字的右边"是同一个位置，删除方向无从表达。
+
+### 目标模型
+
+借鉴 Monaco / CodeMirror / ProseMirror 与任何 `<textarea>` 的共同做法：
+
+- 文档 = 一个字符串 `S`；操作位置 = 零宽 `caret p ∈ [0, len]`；选区 = `{anchor, head}`。
+- **删除一律表达成"先算出一个选区，再删它"**：退格删 `[p-1, p)`，Delete 删 `[p, p+1)`，
+  有选区时两个键都删选区。引擎只留一个 `deleteRange(a, b)`。
+- `#grid` 降级为**纯渲染**：按 `S` 逐格铺字、按 `p` 画插入符、按选区跨格高亮。
+- 输入与光标宿主 = **一个隐藏的 textarea**（CodeMirror 5 与各字帖工具的标准套路）。
+  零宽 caret、跨字符选区、鼠标拖选、双击选词、`Backspace`/`Delete`/方向键语义、
+  IME 组合窗口、`selectionStart/End` 全部交还浏览器——现在的 1000 个单字符 `<input>`
+  等于把这些放弃后手工重写，而且只重写了一半（`composing` 闸门、`caret-color: transparent`
+  这些补丁散落在三个文件里）。
+
+### 实施顺序
+
+1. **先补单测**锁住 `grid/input.js` + `grid/edit.js` 的现有行为（插入后移、空格直填、
+   删除前移、写满整次拒绝）。B 会重写这两个文件，没有测试就是盲改。
+2. 引入 textarea 输入层与 `S` / `caret` / `anchor` 状态，`state.js` 里
+   `cells / inputs / cellDivs / activeIdx / composing` 相应退场。
+3. 渲染层：按 25 字折行铺格 + 插入符绘制 + 选区跨格高亮 + 只重绘变化的格子。
+4. 鼠标命中测试（点第几格 → `p` 是多少）与键盘导航，顺带修掉第八节点名留给 B 的四条。
+5. 撤销简化为 `{text, caret}` 快照栈 —— 比手写 `[{idx, prev, next}]` 更难写错，
+   且"缩行作废撤销栈"那条约束可以一并取消（快照与行列结构无关）。
+
+### 兼容性
+
+存档格式**不需要迁移**：`data` 稀疏 map ↔ 字符串双向转换即可，`rows` 字段继续有效。
+
+### 必须同步的对外承诺
+
+README 的 Features 一节现在把"**Delete at the cursor, never behind it**"当成卖点写着，
+`Esc` 之外的键盘表也写了 `Backspace / Delete → Delete at the cursor`。
+B 落地即推翻这条承诺，README、`ARCHITECTURE.md` 第六节的不变量表都要同步改，
+别留着自相矛盾。

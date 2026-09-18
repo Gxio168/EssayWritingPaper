@@ -33,10 +33,23 @@
   }
 }
 
+/* 触摸设备没有 hover，而 .pi-del 默认 display:none、只在 hover/active 时出现，
+   结果是手机上只能删掉当前正在编辑的那一张记录。 */
+@media (hover: none) {
+  .pi-del {
+    display: block;
+  }
+}
+
 @media print {
   body {
     background: #fff;
     padding: 0;
+  }
+  /* 25 × 36px = 900px 宽，超出 A4 纵向可打印区（约 718–794px），右列会被裁掉。
+     26px × 25 = 650px 留出余量；字号与行高都由 --cell 推导，无需另外调。 */
+  :root {
+    --cell: 26px;
   }
   .sidebar,
   .backdrop,

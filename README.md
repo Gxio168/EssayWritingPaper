@@ -52,9 +52,12 @@ review anytime.
 - **Search by name or by answer text**, with the matching fragment highlighted in the
   result list.
 - **Sort** by last modified (newest / oldest), by name (A→Z / Z→A) or by creation date.
-  Your search term and sort order are remembered.
+  Your sort order is remembered between visits; the search box deliberately starts
+  empty so you never open the page to a list that looks half-empty.
 - **Rename** at any time, **delete** with a confirmation dialog that tells you exactly
   what is about to be removed.
+- **Reducing the line count asks first** if any text would be cut off — shrinking rows
+  invalidates undo, so the app never drops characters silently.
 - **Export / import a JSON backup** of the whole library, so you can move between
   browsers or machines.
 

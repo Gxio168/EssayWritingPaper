@@ -46,17 +46,18 @@ export function persist() {
   }
 }
 
+// 只持久化排序。搜索词故意不存：下次打开时列表被上一轮的关键词筛着，
+// 会被当成"记录丢了"，而它几乎从不跨会话复用。
 export function loadPrefs() {
   try {
     const p = JSON.parse(localStorage.getItem(LS_PREFS) || '{}')
     if (p && typeof p.sort === 'string') app.sortMode = p.sort
-    if (p && typeof p.search === 'string') app.searchTerm = p.search
   } catch (e) {}
 }
 
 export function savePrefs() {
   try {
-    localStorage.setItem(LS_PREFS, JSON.stringify({ sort: app.sortMode, search: app.searchTerm }))
+    localStorage.setItem(LS_PREFS, JSON.stringify({ sort: app.sortMode }))
   } catch (e) {}
 }
 
