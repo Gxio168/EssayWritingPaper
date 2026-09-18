@@ -1,0 +1,57 @@
+/* ================= 窄屏抽屉 + 打印 =================
+   必须最后引入：媒体查询要在级联中胜过前面的默认规则。 */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: 6px 0 24px rgba(20, 30, 60, 0.18);
+  }
+  body.drawer-open .sidebar {
+    transform: translateX(0);
+  }
+  .main {
+    margin-left: 0;
+    padding: 12px 10px 48px;
+  }
+  .menu-btn {
+    display: inline-block;
+  }
+  .toolbar {
+    font-size: 13px;
+    gap: 8px;
+    padding: 9px 12px;
+    top: 8px;
+  }
+  .toolbar input[type='text'] {
+    width: 130px;
+  }
+  .hint {
+    display: none;
+  }
+  .stat {
+    margin-left: 0;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+  .sidebar,
+  .backdrop,
+  .toolbar,
+  #toast,
+  #modal {
+    display: none !important;
+  }
+  .main {
+    margin-left: 0;
+    padding: 0;
+    display: block;
+  }
+  .paper {
+    box-shadow: none;
+    padding: 0;
+  }
+}

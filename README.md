@@ -35,6 +35,9 @@ review anytime.
   the middle of an answer.
 - **Paste** a whole paragraph and it fills the grid cell by cell, pushing existing
   content back.
+- **Never loses characters.** If an insertion or paste would push text past the last
+  cell, the whole operation is refused with a toast telling you to add lines or delete
+  something first — nothing is silently dropped off the end.
 - **IME-friendly** — Chinese/Japanese/Korean input methods are handled, so composing a
   character does not mangle the grid.
 - **Undo / redo** per paper, with a session boundary: undo never rewinds past the state
@@ -59,7 +62,8 @@ review anytime.
 - Custom animated dialogs instead of the browser's native `confirm` / `prompt`.
 - Responsive: the sidebar collapses into a slide-in drawer on narrow screens.
 - Print-friendly — printing hides all UI and outputs only the answer paper.
-- Single file, zero dependencies, works from `file://` as well as over HTTP.
+- Zero dependencies and no build step: plain HTML, CSS and native ES modules served
+  as-is.
 
 ## Getting started
 
@@ -72,15 +76,13 @@ review anytime.
 ```bash
 git clone https://github.com/Gxio168/EssayWritingPaper.git
 cd EssayWritingPaper
-```
-
-Then open `index.html` in any modern browser — double-clicking the file is enough.
-Optionally serve it over HTTP:
-
-```bash
 python3 -m http.server 8000
 # → http://localhost:8000
 ```
+
+Any static server works. Double-clicking `index.html` does **not** — the JS is split
+into ES modules, and browsers refuse module imports from a `file://` origin for CORS
+reasons. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the file layout.
 
 ## Usage
 
@@ -113,7 +115,7 @@ self-explanatory:
 | `Arrow keys` | Move between cells |
 | `Home` / `End` | Jump to start / end of the line |
 | `Tab` / `Shift + Tab` | Next / previous cell |
-| `Enter` | Next line |
+| `Enter` | Start the next line (first cell of the next row) |
 | `Backspace` / `Delete` | Delete at the cursor |
 | `Esc` | Close a dialog or the sidebar drawer |
 
@@ -121,11 +123,9 @@ self-explanatory:
 
 All content is stored locally in your browser's `localStorage` under the
 `shenlun.answerSheets.v1` key. Nothing is ever uploaded — there is no server, no account
-and no analytics. Note that `localStorage` is scoped per browser and per origin, so:
-
-- opening the page from `file://` and from the hosted URL gives you **two separate
-  libraries**;
-- clearing your browser data, or using private/incognito mode, will lose the papers.
+and no analytics. Note that `localStorage` is scoped per browser and per origin, so a
+page served from `localhost` and the hosted URL keep **two separate libraries**;
+clearing your browser data, or using private/incognito mode, will lose the papers.
 
 For anything you care about, use **导出备份** to keep a JSON copy.
 
@@ -133,11 +133,27 @@ For anything you care about, use **导出备份** to keep a JSON copy.
 
 ```
 EssayWritingPaper/
-├── index.html   # the entire application: markup, styles and logic
+├── index.html       # skeleton only: markup, stylesheet links, module entry
+├── css/             # one file per UI region; load order = cascade order
+├── js/
+│   ├── main.js      # entry point: resolve DOM → bind events → init
+│   ├── state.js     # every piece of shared mutable state, in one object
+│   ├── dom.js       # element references, resolved once at startup
+│   ├── config.js    # constants
+│   ├── lib/         # pure helpers (formatting, text)
+│   ├── ui/          # toast, drawer, custom dialogs, clipboard
+│   ├── storage/     # the only module that touches localStorage
+│   ├── grid/        # the 25-cell grid: build, insert/delete, undo, resize
+│   ├── paper/       # a paper as an entity: model, autosave, library list, CRUD
+│   ├── backup/      # JSON export / import
+│   └── events/      # every addEventListener lives here
+├── ARCHITECTURE.md  # layering rules, invariants, where to put new code
 └── README.md
 ```
 
-There is no build step. Edit `index.html` and refresh.
+There is no build step — edit a file and refresh. The layered layout, the dependency
+rules and the behavioural invariants that must not break are documented in
+[ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Deployment
 
@@ -159,8 +175,10 @@ blur) degrade gracefully on older browsers.
 
 ## Contributing
 
-Issues and pull requests are welcome. Since the whole app lives in one file, please keep
-it dependency-free and open `index.html` directly to verify a change before submitting.
+Issues and pull requests are welcome. Please keep the app dependency-free and
+build-step-free, respect the layering documented in
+[ARCHITECTURE.md](./ARCHITECTURE.md), and serve the folder over HTTP to verify a change
+before submitting.
 
 ## License
 
