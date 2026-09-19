@@ -23,25 +23,29 @@ review anytime.
 ### Writing grid
 - **25 cells per line**, adjustable from 1 to 200 lines; the total cell count and the
   live character count are always shown.
-- **Insert mode** — typing inserts a character and pushes the rest of the answer back,
+- **Real cursor & selection** — a text-editor caret (not a highlighted cell): click the
+  left half of a cell to place the caret before it, the right half to place it after;
+  drag across cells or double-click to select a run of characters; `Shift` + arrow keys
+  extend the selection.
+- **Standard editor delete semantics** — `Backspace` deletes the character *before* the
+  caret, `Delete` deletes the one *after* it, and with a selection both delete the
+  selection. No more "which cell am I on" ambiguity.
+- **Insert mode** — typing inserts at the caret and pushes the rest of the answer back,
   exactly like editing on paper; no characters are silently overwritten.
-- **Delete at the cursor, never behind it** — `Backspace` deletes the cell the cursor is
-  on: if it holds a character, that character goes and the rest shifts forward; if it is
-  blank, the following text is pulled forward to fill the gap. The cell *before* the
-  cursor is never touched.
-- **Blank-cell typing** — when the cursor sits on a blank cell and there is nothing after
-  it (i.e. you are simply writing on), the character lands in that cell and nothing else
-  moves. If text does follow, a normal insert is performed so you never punch a hole in
-  the middle of an answer.
+- **Blank lines on demand** — `Enter` moves the caret to the start of the next line;
+  at the end of the text it pads the rest of the line with blank cells (which don't
+  count toward the character total).
 - **Paste** a whole paragraph and it fills the grid cell by cell, pushing existing
   content back.
 - **Never loses characters.** If an insertion or paste would push text past the last
   cell, the whole operation is refused with a toast telling you to add lines or delete
   something first — nothing is silently dropped off the end.
-- **IME-friendly** — Chinese/Japanese/Korean input methods are handled, so composing a
-  character does not mangle the grid.
-- **Undo / redo** per paper, with a session boundary: undo never rewinds past the state
-  you opened, so a stray `Ctrl+Z` cannot wipe a document you just loaded.
+- **IME-friendly** — Chinese/Japanese/Korean input methods are handled natively by the
+  hidden textarea input layer; composing a character does not mangle the grid.
+- **Undo / redo** per paper, as full-text snapshots with the exact caret position —
+  undoing an insertion puts the cursor back where the edit happened. Undo never rewinds
+  past the state you opened the paper with, and shrinking the line count (which
+  truncates the text) is itself undoable.
 
 ### Local storage & paper library
 - **Name it, then write** — every new paper asks for a name first and is written to
@@ -114,12 +118,12 @@ self-explanatory:
 | `Ctrl + S` | Save |
 | `Ctrl + Z` | Undo |
 | `Ctrl + Shift + Z` / `Ctrl + Y` | Redo |
-| `Ctrl + Shift + N` | New paper |
-| `Arrow keys` | Move between cells |
+| `Ctrl + Alt + N` | New paper (`Ctrl + Shift + N` is reserved by Chrome for incognito) |
+| `Arrow keys` | Move the caret between cells (`Shift` + arrows select) |
 | `Home` / `End` | Jump to start / end of the line |
-| `Tab` / `Shift + Tab` | Next / previous cell |
-| `Enter` | Start the next line (first cell of the next row) |
-| `Backspace` / `Delete` | Delete at the cursor |
+| `Enter` | Move the caret to the start of the next line |
+| `Backspace` / `Delete` | Delete before / after the caret, or the selection |
+| `Tab` | Leave the grid, focus the toolbar |
 | `Esc` | Close a dialog or the sidebar drawer |
 
 ## Data & privacy
@@ -143,19 +147,21 @@ EssayWritingPaper/
 │   ├── state.js     # every piece of shared mutable state, in one object
 │   ├── dom.js       # element references, resolved once at startup
 │   ├── config.js    # constants
-│   ├── lib/         # pure helpers (formatting, text)
+│   ├── lib/         # pure helpers (formatting, text & diff)
 │   ├── ui/          # toast, drawer, custom dialogs, clipboard
 │   ├── storage/     # the only module that touches localStorage
-│   ├── grid/        # the 25-cell grid: build, insert/delete, undo, resize
+│   ├── grid/        # the grid: render, edit engine, caret, undo, resize
 │   ├── paper/       # a paper as an entity: model, autosave, library list, CRUD
 │   ├── backup/      # JSON export / import
 │   └── events/      # every addEventListener lives here
+├── tests/           # zero-dependency unit tests: npm test (node:test)
 ├── ARCHITECTURE.md  # layering rules, invariants, where to put new code
 └── README.md
 ```
 
-There is no build step — edit a file and refresh. The layered layout, the dependency
-rules and the behavioural invariants that must not break are documented in
+There is no build step — edit a file and refresh. Run the test suite with `npm test`
+(Node 18+, still zero dependencies). The layered layout, the dependency rules and the
+behavioural invariants that must not break are documented in
 [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Deployment

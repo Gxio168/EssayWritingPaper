@@ -1,15 +1,16 @@
-/* DOM 引用：保持原实现「启动时一次性解析、之后不再查询」的语义。
+/* DOM 引用：保持「启动时一次性解析、之后不再查询」的语义。
  *
  * 用法限制：
  * - 只能在函数体内访问 dom.xxx；模块顶层读到的是 undefined，因为 initDom() 还没跑。
- * - 重建网格时（buildDOM）替换的是 #grid 内部的子节点，#grid 本身不会消失，
- *   所以这里缓存的引用全程有效，不需要重新解析。 */
+ * - 重建网格（buildDOM）替换的是 #grid 内部的子节点，#grid 本身不会消失，
+ *   所以这里缓存的引用全程有效。唯一例外是 dom.caretEl：它由 buildDOM
+ *   动态创建并重新赋值，不要在别处缓存它。 */
 
 export const dom = {}
 
 export function initDom() {
-  dom.sidebar = document.getElementById('sidebar')
   dom.gridEl = document.getElementById('grid')
+  dom.hiddenInput = document.getElementById('hiddenInput')
   dom.rowsInput = document.getElementById('rowsInput')
   dom.statEl = document.getElementById('stat')
   dom.undoBtn = document.getElementById('undoBtn')

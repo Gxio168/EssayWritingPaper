@@ -1,19 +1,20 @@
-/* 撤销 / 重做。
+/* 撤销 / 重做（路线 B：快照栈）。
  *
- * 一条「记录」= 一次操作造成的所有格子变化 [{ idx, prev, next }]，
- * 因为插入/删除会牵动一整段后移内容，必须整组回滚。
+ * 一条记录 = 整篇快照 { text, caret, anchor }。相比旧版增量记录
+ * [{idx, prev, next}]，快照不可能索引错位，撤销时光标随快照精确还原。
  *
- * 两道保护：
- * 1. app.undoBaseline —— 本次打开时的栈深度，撤销不会退到载入之前，
- *    避免误触 Ctrl+Z 把刚打开的答题纸清空。
- * 2. app.undoHistory —— 按答题纸 id 归档（未存档草稿记在 DRAFT_KEY 下），
- *    切换答题纸时 stash / restore，来回切不丢历史。 */
+ * 两道保护不变：
+ * 1. app.undoBaseline —— 撤销不会退到本次打开之前；
+ * 2. app.undoHistory —— 按答题纸 id 归档（未存档草稿记在 DRAFT_KEY 下）。
+ *
+ * 行数调整不再作废撤销栈：快照与行列结构无关，缩行截断也可以 Ctrl+Z 撤回。 */
 
 import { DRAFT_KEY } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { toast } from '../ui/toast.js'
-import { focusCell } from './focus.js'
+import { syncTextarea, renderText, renderCaret } from './render.js'
+import { buildDOM } from './build.js'
 import { updateStat } from './stat.js'
 import { markDirty } from '../paper/autosave.js'
 
@@ -24,30 +25,32 @@ export function undo() {
     toast('已经回到打开时的状态了')
     return
   }
-  const records = app.undoStack.pop()
-  app.redoStack.push(records)
-
-  for (let i = records.length - 1; i >= 0; i--) {
-    const r = records[i]
-    app.cells[r.idx] = r.prev
-    if (app.inputs[r.idx]) app.inputs[r.idx].value = r.prev
-  }
-  focusCell(records[0].idx)
-  updateStat()
-  updateUndoButtons()
-  markDirty()
+  const snap = app.undoStack.pop()
+  app.redoStack.push({ text: app.text, caret: app.caret, anchor: app.anchor, rows: app.rows })
+  applySnap(snap)
 }
 
 export function redo() {
   if (!app.redoStack.length) return
-  const records = app.redoStack.pop()
-  app.undoStack.push(records)
+  const snap = app.redoStack.pop()
+  app.undoStack.push({ text: app.text, caret: app.caret, anchor: app.anchor, rows: app.rows })
+  applySnap(snap)
+}
 
-  for (const r of records) {
-    app.cells[r.idx] = r.next
-    if (app.inputs[r.idx]) app.inputs[r.idx].value = r.next
+function applySnap(snap) {
+  app.text = snap.text
+
+  // 快照的行数与当前不同 = 这一步跨过了行数调整（如缩行截断的撤销）：
+  // 行数跟着快照走并整表重建，保证容量与文字永远匹配
+  if (snap.rows && snap.rows !== app.rows) {
+    app.rows = snap.rows
+    dom.rowsInput.value = snap.rows
+    buildDOM()
   }
-  focusCell(records[records.length - 1].idx)
+
+  syncTextarea(snap.caret, snap.anchor)
+  renderText()
+  renderCaret()
   updateStat()
   updateUndoButtons()
   markDirty()

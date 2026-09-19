@@ -3,15 +3,17 @@
  * 顺序不能调整：
  * 1. initDom() 必须最先跑。其它模块只在函数体内访问 dom.*，所以模块加载期
  *    不会踩到空引用，但别把 dom.* 的读取写到任何模块的顶层。
- * 2. 事件绑定先于 init()，与原单文件实现一致：init() 里弹出的首个命名对话框
- *    依赖监听器已经就位。 */
+ * 2. 事件绑定先于 init()，与原实现一致：init() 里弹出的首个命名对话框
+ *    依赖监听器已经就位。
+ * 3. --cols 写进根元素，CSS 的 grid-template-columns 用它铺列——
+ *    列数只在这一处定义，改 config.js 的 COLS 即可，不会再与 CSS 脱节。 */
 
 import { COLS } from './config.js'
 import { app } from './state.js'
 import { dom, initDom } from './dom.js'
 import { checkStorage, loadPrefs, loadStore } from './storage/store.js'
 import { buildDOM } from './grid/build.js'
-import { focusCell } from './grid/focus.js'
+import { focusCaret } from './grid/caret.js'
 import { updateHeader } from './paper/header.js'
 import { renderList, sortedPapers } from './paper/library.js'
 import { askNewName, startFresh, doSave, loadPaper } from './paper/crud.js'
@@ -31,12 +33,13 @@ function init() {
   dom.sortSelect.value = app.sortMode
 
   app.rows = parseInt(dom.rowsInput.value, 10) || 40
-  app.cells = new Array(app.rows * COLS).fill('')
+  document.documentElement.style.setProperty('--cols', String(COLS))
+  app.text = ''
   buildDOM()
 
   updateHeader()
   renderList()
-  focusCell(0)
+  focusCaret(0)
 
   if (app.papers.length) {
     // 打开最近修改的一份
@@ -48,7 +51,7 @@ function init() {
       if (!name) return
       startFresh(name)
       doSave(name)
-      focusCell(0)
+      focusCaret(0)
       toast('已创建「' + name + '」，边写边自动保存')
     })
   }

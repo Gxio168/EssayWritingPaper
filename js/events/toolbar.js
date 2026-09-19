@@ -3,7 +3,7 @@
  * 这里只做「读事件 → 调领域函数」，不写业务规则。
  * 两处刻意保留的细节：
  * - nameInput 的 input 回调要看 skipNameDirty，程序性回填名称时不能标脏。
- * - saveBtn 只在已有名字时才主动把焦点还给网格，否则由命名弹窗接管焦点。 */
+ * - saveBtn 只在已有名字时才把焦点还给网格，否则由命名弹窗接管焦点。 */
 
 import { app } from '../state.js'
 import { dom } from '../dom.js'
@@ -12,9 +12,9 @@ import { openDialog } from '../ui/dialog.js'
 import { toast } from '../ui/toast.js'
 import { copyText } from '../ui/clipboard.js'
 import { setRows } from '../grid/resize.js'
-import { applyChanges } from '../grid/edit.js'
+import { clearAll } from '../grid/engine.js'
 import { undo, redo } from '../grid/undo.js'
-import { focusCell } from '../grid/focus.js'
+import { focusCaret } from '../grid/caret.js'
 import { updateHeader } from '../paper/header.js'
 import { savePaper } from '../paper/crud.js'
 
@@ -44,7 +44,7 @@ export function bindToolbarEvents() {
 
   dom.saveBtn.addEventListener('click', function () {
     // 已经有名字就直接存档；否则弹窗补名字，由弹窗流程接管焦点
-    if (dom.nameInput.value.trim()) focusCell(app.activeIdx < 0 ? 0 : app.activeIdx)
+    if (dom.nameInput.value.trim()) dom.hiddenInput.focus()
     savePaper()
   })
 
@@ -54,15 +54,15 @@ export function bindToolbarEvents() {
 
   dom.undoBtn.addEventListener('click', function () {
     undo()
-    dom.gridEl.focus()
+    dom.hiddenInput.focus()
   })
   dom.redoBtn.addEventListener('click', function () {
     redo()
-    dom.gridEl.focus()
+    dom.hiddenInput.focus()
   })
 
   dom.clearBtn.addEventListener('click', function () {
-    const n = countChars(app.cells)
+    const n = countChars(app.text)
     if (!n) {
       toast('当前答题纸已经是空的')
       return
@@ -81,12 +81,8 @@ export function bindToolbarEvents() {
       cancelText: '取消',
     }).then(function (okVal) {
       if (!okVal) return
-      const changes = []
-      for (let i = 0; i < app.cells.length; i++) {
-        if (app.cells[i]) changes.push({ idx: i, ch: '' })
-      }
-      if (changes.length) applyChanges(changes)
-      focusCell(0)
+      clearAll()
+      focusCaret(0)
     })
   })
 }

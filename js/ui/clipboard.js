@@ -4,14 +4,8 @@
  * 失败或不可用时退回到隐藏 textarea + execCommand('copy')。 */
 
 import { app } from '../state.js'
+import { countChars } from '../lib/text.js'
 import { toast } from './toast.js'
-
-// 当前答题纸上的文字（按格子顺序拼起来，空格子跳过）
-function stateText() {
-  let s = ''
-  for (let i = 0; i < app.cells.length; i++) if (app.cells[i]) s += app.cells[i]
-  return s
-}
 
 // 用隐藏的 textarea + execCommand 兜底：没有剪贴板 API 时（非安全上下文 / 旧浏览器）也能复制
 function copyViaTextarea(str) {
@@ -50,14 +44,14 @@ function copyViaTextarea(str) {
 
 // 把当前答题纸的内容以纯文本放进剪贴板，之后可以直接 Ctrl+V 粘贴
 export function copyText() {
-  const str = stateText()
+  const str = app.text
   if (!str.length) {
     toast('这张答题纸还是空的，没有可复制的内容')
     return
   }
 
   const done = function () {
-    toast('已复制 ' + str.length + ' 个字，可以直接 Ctrl+V 粘贴')
+    toast('已复制 ' + countChars(str) + ' 个字，可以直接 Ctrl+V 粘贴')
   }
   const fallback = function () {
     if (copyViaTextarea(str)) done()

@@ -1,10 +1,11 @@
-/* 字数统计：工具栏右侧的「已写 / 总格数」。 */
+/* 字数统计：工具栏右侧的「已写 / 总格数」。字数不含空白（空格是留空的格子）。 */
 
+import { COLS } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
+import { countChars } from '../lib/text.js'
 
 export function updateStat() {
-  let n = 0
-  for (let i = 0; i < app.cells.length; i++) if (app.cells[i]) n++
-  dom.statEl.textContent = n + ' / ' + app.cells.length + ' 字'
+  dom.statEl.textContent =
+    countChars(app.text) + ' / ' + app.rows * COLS + ' 字'
 }

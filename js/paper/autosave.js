@@ -10,7 +10,7 @@ import { AUTOSAVE_DELAY } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { persist } from '../storage/store.js'
-import { toSparse, countChars } from '../lib/text.js'
+import { textToSparse, countChars } from '../lib/text.js'
 import { findPaper, isSaved } from './model.js'
 import { updateHeader } from './header.js'
 import { renderList, updateActiveBadge } from './library.js'
@@ -31,8 +31,8 @@ export function autosave() {
   if (!p) return
   if (dom.nameInput.value.trim()) p.name = dom.nameInput.value.trim()
   p.rows = app.rows
-  p.data = toSparse(app.cells)
-  p.wordCount = countChars(app.cells)
+  p.data = textToSparse(app.text)
+  p.wordCount = countChars(app.text)
   p.updatedAt = Date.now()
   if (persist()) {
     app.dirty = false

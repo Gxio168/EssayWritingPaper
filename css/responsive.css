@@ -55,7 +55,9 @@
   .backdrop,
   .toolbar,
   #toast,
-  #modal {
+  #modal,
+  .caret,
+  .hidden-input {
     display: none !important;
   }
   .main {

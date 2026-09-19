@@ -1,9 +1,10 @@
 /* 答题纸记录的只读查询与构造。不含任何副作用（不写存储、不碰 DOM）。
  *
- * 记录结构：{ id, name, rows, data(稀疏 map), wordCount, createdAt, updatedAt } */
+ * 记录结构：{ id, name, rows, data(稀疏 map), wordCount, createdAt, updatedAt }
+ * data 由 app.text 转换而来，存档格式与旧版完全一致。 */
 
 import { uid } from '../lib/format.js'
-import { toSparse, countChars } from '../lib/text.js'
+import { textToSparse, countChars } from '../lib/text.js'
 import { app } from '../state.js'
 
 export function buildCurrent(name) {
@@ -12,8 +13,8 @@ export function buildCurrent(name) {
     id: uid(),
     name: name,
     rows: app.rows,
-    data: toSparse(app.cells),
-    wordCount: countChars(app.cells),
+    data: textToSparse(app.text),
+    wordCount: countChars(app.text),
     createdAt: now,
     updatedAt: now,
   }

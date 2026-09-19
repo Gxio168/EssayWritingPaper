@@ -81,12 +81,23 @@
           ↷ 重做
         </button>
         <button class="btn" id="clearBtn" type="button">清空全部</button>
-        <span class="hint">插入模式：新字插入后，后面的字整体后移</span>
+        <span class="hint">点击格子定位光标，输入即插入，后文整体后移</span>
         <span class="stat" id="stat">0 / 1000 字</span>
       </div>
 
       <div class="paper">
         <h1 class="paper-title" id="paperTitle">申论答题纸</h1>
+        <!-- 隐藏的输入宿主：格子语义（光标/选区/退格/IME/粘贴）全部交给
+             textarea 原生处理，#grid 只负责按 25 字折行铺字 -->
+        <textarea
+          id="hiddenInput"
+          class="hidden-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          aria-label="答题纸输入区"
+        ></textarea>
         <div id="grid"></div>
       </div>
     </div>

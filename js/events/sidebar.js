@@ -7,7 +7,7 @@ import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { savePrefs } from '../storage/store.js'
 import { setDrawer } from '../ui/drawer.js'
-import { focusCell } from '../grid/focus.js'
+import { focusCaret } from '../grid/caret.js'
 import { renderList } from '../paper/library.js'
 import { guardUnsaved, loadPaper, newPaper, deletePaper } from '../paper/crud.js'
 import { exportData, importData } from '../backup/transfer.js'
@@ -25,7 +25,7 @@ export function bindSidebarEvents() {
     const id = item.dataset.id
     if (id === app.activeId) {
       setDrawer(false)
-      focusCell(0)
+      focusCaret(0)
       return
     }
     guardUnsaved('切换答题纸').then(function (go) {

@@ -1,0 +1,13 @@
+{
+  "name": "essay-writing-paper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "申论答题纸 · web 版申论练习格子纸（零依赖、无构建）",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -9,17 +9,17 @@
  *   stashHistory / restoreHistory。
  * - 新建路径会立刻 doSave 空答题纸，避免刷新丢失。 */
 
-import { COLS } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { esc, fmtTime, fmtStamp } from '../lib/format.js'
-import { countChars, toSparse } from '../lib/text.js'
+import { countChars, textToSparse, sparseToText } from '../lib/text.js'
 import { persist } from '../storage/store.js'
 import { openDialog } from '../ui/dialog.js'
 import { toast } from '../ui/toast.js'
 import { setDrawer } from '../ui/drawer.js'
 import { buildDOM } from '../grid/build.js'
-import { focusCell } from '../grid/focus.js'
+import { focusCaret } from '../grid/caret.js'
+import { syncTextarea, renderText } from '../grid/render.js'
 import { stashHistory, restoreHistory } from '../grid/undo.js'
 import { buildCurrent, findPaper, isSaved } from './model.js'
 import { autosave } from './autosave.js'
@@ -33,7 +33,7 @@ export function guardUnsaved(actionLabel) {
     autosave()
     return Promise.resolve(true)
   }
-  if (countChars(app.cells) === 0) return Promise.resolve(true)
+  if (countChars(app.text) === 0) return Promise.resolve(true)
   return openDialog({
     title: '尚未保存',
     icon: 'warn',
@@ -59,8 +59,8 @@ export function doSave(name) {
   } else {
     p.name = name
     p.rows = app.rows
-    p.data = toSparse(app.cells)
-    p.wordCount = countChars(app.cells)
+    p.data = textToSparse(app.text)
+    p.wordCount = countChars(app.text)
     p.updatedAt = Date.now()
   }
 
@@ -111,23 +111,20 @@ export function loadPaper(id) {
   stashHistory()
 
   const n = Math.max(1, Math.min(200, p.rows || 40))
-  const total = n * COLS
-  const arr = new Array(total).fill('')
-  const data = p.data || {}
-  for (const k in data) {
-    if (!Object.prototype.hasOwnProperty.call(data, k)) continue
-    const i = Number(k)
-    if (i >= 0 && i < total) arr[i] = String(data[k])
-  }
-
-  app.rows = n
-  dom.rowsInput.value = n
-  app.cells = arr
+  const text = sparseToText(p.data)
+  // 自愈：万一存档里的文字比容量还多（旧版本缺陷可能产生），扩行容纳，
+  // 绝不静默截断用户的字
+  const rows = Math.max(n, Math.min(200, Math.ceil(text.length / COLS)))
+  app.rows = rows
+  dom.rowsInput.value = rows
+  app.text = text
   app.activeId = p.id
   app.dirty = false
 
   buildDOM()
   restoreHistory(p.id)
+  syncTextarea(0, 0)
+  renderText()
   app.skipNameDirty = true
   dom.nameInput.value = p.name
   app.skipNameDirty = false
@@ -135,7 +132,7 @@ export function loadPaper(id) {
   updateHeader()
   renderList()
   setDrawer(false)
-  focusCell(0)
+  focusCaret(0)
   toast('已打开「' + p.name + '」')
 }
 
@@ -145,12 +142,14 @@ export function startFresh(name) {
 
   clearTimeout(app.saveTimer)
   app.rows = parseInt(dom.rowsInput.value, 10) || app.rows || 40
-  app.cells = new Array(app.rows * COLS).fill('')
+  app.text = ''
   app.activeId = null
   app.dirty = false
 
   buildDOM()
   restoreHistory(null)
+  syncTextarea(0, 0)
+  renderText()
   app.skipNameDirty = true
   dom.nameInput.value = name || ''
   app.skipNameDirty = false
@@ -158,7 +157,7 @@ export function startFresh(name) {
   updateHeader()
   renderList()
   setDrawer(false)
-  focusCell(0)
+  focusCaret(0)
 }
 
 // 问用户要一个名称：确认返回名称字符串，取消返回 ''
@@ -187,7 +186,7 @@ export function newPaper() {
       if (!name) return // 取消：不改动当前内容
       startFresh(name)
       doSave(name) // 先把这份空答题纸落档，避免刷新丢失
-      focusCell(0)
+      focusCaret(0)
       toast('已新建「' + name + '」')
     })
   })
