@@ -1,12 +1,84 @@
-/* ================= 基础层：设计变量 + 重置 + 页面骨架 ================= */
+/* ================= 基础层：设计变量 + 重置 + 页面骨架 =================
+ *
+ * 所有颜色都走这里的语义变量；深色主题只覆盖变量值，不写第二套组件样式。
+ * index.html 顶部有一段内联脚本在 CSS 解析前就把 data-theme 挂到 <html> 上，
+ * 避免深色用户刷新时白屏闪烁。 */
 :root {
   --cell: 36px;
-  --line: #c9cfd8;
+  --sidebar-w: 306px;
+
+  color-scheme: light;
+
+  /* 主题色板（浅色） */
   --accent: #2f6fdb;
   --accent-dark: #2456ab;
-  --sidebar-w: 306px;
-  --bg: #eef1f5;
-  --text: #333;
+  --bg: #eef1f5; /* 页面背景 */
+  --surface: #fff; /* 面板：侧边栏 / 工具栏 / 答题纸 / 对话框 / 按钮 */
+  --surface-2: #fcfdff; /* 次级面板：侧边栏底栏 */
+  --input-bg: #f8fafc; /* 输入框底色 */
+  --hover-bg: #f2f5fa; /* 悬停底色 */
+
+  --text: #333; /* 正文 */
+  --heading: #22304a; /* 标题 / 强调文字 */
+  --text-2: #5b6579; /* 次级说明文字 */
+  --muted: #889; /* 弱化文字（提示 / 时间戳 / 空态） */
+  --grid-text: #1b1b1b; /* 格子里的字 */
+
+  --line: #c9cfd8; /* 网格线 */
+  --border: #d3d8e0; /* 输入框 / 按钮描边 */
+  --border-hover: #b9c3d1;
+  --border-faint: #e2e6ec; /* 分隔线 / 面板内弱描边 */
+
+  --active-bg: #e9f2ff; /* 选中项 / 当前格 */
+  --active-border: #bcd6ff;
+  --sel-bg: #cfe0ff; /* 选区高亮 */
+
+  --snippet-bg: #fffbe6; /* 搜索命中片段 */
+  --snippet-strong: #b06000;
+
+  --warn-bg: #fff4e5; /* 警告条 / 警示图标 */
+  --warn-text: #96631b;
+  --warn-border: #ffe2bd;
+  --warn-strong: #c47b16;
+  --danger-soft: #ffe8e8; /* 危险底色（软） */
+  --danger-text: #d33f3f;
+  --danger-btn: #e04a4a; /* 危险按钮 */
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --accent: #5b8ff0;
+  --accent-dark: #4a7ee0;
+  --bg: #16181d;
+  --surface: #1f2229;
+  --surface-2: #23262e;
+  --input-bg: #262a33;
+  --hover-bg: #2a2e38;
+
+  --text: #d5dae3;
+  --heading: #e6eaf2;
+  --text-2: #a8b1c2;
+  --muted: #7d8698;
+  --grid-text: #e8ebf1;
+
+  --line: #3d424e;
+  --border: #3a3f4b;
+  --border-hover: #4a5060;
+  --border-faint: #2b2f38;
+
+  --active-bg: #24344f;
+  --active-border: #35507e;
+  --sel-bg: #2c4a7d;
+
+  --snippet-bg: #33301f;
+  --snippet-strong: #e0a458;
+
+  --warn-bg: #3a2f1c;
+  --warn-text: #e2b567;
+  --warn-border: #55432a;
+  --warn-strong: #e2b567;
+  --danger-soft: #45272a;
+  --danger-text: #ef7b7b;
 }
 * {
   box-sizing: border-box;

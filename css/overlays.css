@@ -70,7 +70,7 @@ body.drawer-open .backdrop {
 
 .dialog {
   width: min(420px, 100%);
-  background: #fff;
+  background: var(--surface);
   border-radius: 14px;
   padding: 22px 22px 18px;
   box-shadow: 0 24px 60px rgba(15, 25, 45, 0.28), 0 2px 8px rgba(15, 25, 45, 0.1);
@@ -117,49 +117,49 @@ body.drawer-open .backdrop {
   justify-content: center;
   font-size: 15px;
   font-weight: 700;
-  background: #e9f2ff;
+  background: var(--active-bg);
   color: var(--accent);
 }
 .dg-ico.warn {
-  background: #fff4e0;
-  color: #c47b16;
+  background: var(--warn-bg);
+  color: var(--warn-strong);
 }
 .dg-ico.danger {
-  background: #ffe8e8;
-  color: #d33f3f;
+  background: var(--danger-soft);
+  color: var(--danger-text);
 }
 .dg-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1e2a44;
+  color: var(--heading);
   letter-spacing: 0.3px;
 }
 .dg-msg {
   font-size: 13.5px;
   line-height: 1.75;
-  color: #5b6579;
+  color: var(--text-2);
   margin: 0 0 16px;
   word-break: break-word;
 }
 .dg-msg b {
-  color: #22304a;
+  color: var(--heading);
 }
 .dg-input {
   width: 100%;
   padding: 9px 12px;
-  border: 1px solid #d3d8e0;
+  border: 1px solid var(--border);
   border-radius: 9px;
   font-size: 14px;
   font-family: inherit;
-  color: #22304a;
-  background: #f8fafc;
+  color: var(--heading);
+  background: var(--input-bg);
   outline: none;
   margin-bottom: 16px;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 .dg-input:focus {
   border-color: var(--accent);
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 0 0 3px rgba(47, 111, 219, 0.14);
 }
 .dg-input.shake {
@@ -190,12 +190,12 @@ body.drawer-open .backdrop {
   padding: 8px 14px;
 }
 .btn.danger {
-  background: #e04a4a;
-  border-color: #e04a4a;
+  background: var(--danger-btn);
+  border-color: var(--danger-btn);
   color: #fff;
   font-weight: 600;
 }
 .btn.danger:hover:not(:disabled) {
-  background: #c93c3c;
-  border-color: #c93c3c;
+  background: var(--danger-text);
+  border-color: var(--danger-text);
 }

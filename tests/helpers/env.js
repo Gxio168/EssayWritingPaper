@@ -13,7 +13,7 @@
 import { app } from '../../js/state.js'
 import { dom } from '../../js/dom.js'
 
-const toastState = { text: '' }
+const toastState = { text: '', count: 0 }
 
 function classListStub() {
   return {
@@ -50,6 +50,7 @@ export function setupEnv(cellCount) {
   }
 
   toastState.text = ''
+  toastState.count = 0
   dom.statEl = { textContent: '' }
   Object.defineProperty(dom, 'toastEl', {
     configurable: true,
@@ -63,6 +64,7 @@ export function setupEnv(cellCount) {
     },
     set textContent(v) {
       toastState.text = String(v)
+      toastState.count++
     },
     classList: classListStub(),
   }
@@ -145,4 +147,9 @@ export function fillText(pattern) {
 
 export function lastToastText() {
   return toastState.text
+}
+
+// 累计 toast 次数（限流断言用）
+export function toastCount() {
+  return toastState.count
 }

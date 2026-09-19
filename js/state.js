@@ -39,9 +39,10 @@ export const app = {
   saveTimer: null, // 自动保存防抖定时器
   skipNameDirty: false, // 程序性回填名称输入框时不触发脏标记
 
-  /* ---------------- 侧边栏偏好 ---------------- */
+  /* ---------------- 偏好 ---------------- */
   searchTerm: '',
   sortMode: 'time-desc',
+  theme: '', // 'light' | 'dark' | ''（空 = 跟随系统）
 
   /* ---------------- 浮层 ---------------- */
   dlgOpen: false, // 同一时刻只允许一个对话框

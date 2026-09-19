@@ -20,6 +20,7 @@ export function initDom() {
   dom.saveBtn = document.getElementById('saveBtn')
   dom.copyBtn = document.getElementById('copyBtn')
   dom.newBtn = document.getElementById('newBtn')
+  dom.themeBtn = document.getElementById('themeBtn')
   dom.paperListEl = document.getElementById('paperList')
   dom.searchInput = document.getElementById('searchInput')
   dom.sortSelect = document.getElementById('sortSelect')

@@ -46,6 +46,18 @@
     background: #fff;
     padding: 0;
   }
+  /* 打印强制回浅色（深色主题费墨），只覆盖打印会用到的关键变量 */
+  html[data-theme='dark'] {
+    color-scheme: light;
+    --bg: #eef1f5;
+    --surface: #fff;
+    --text: #333;
+    --heading: #22304a;
+    --grid-text: #1b1b1b;
+    --line: #c9cfd8;
+    --border-faint: #e2e6ec;
+    --accent: #2f6fdb;
+  }
   /* 25 × 36px = 900px 宽，超出 A4 纵向可打印区（约 718–794px），右列会被裁掉。
      26px × 25 = 650px 留出余量；字号与行高都由 --cell 推导，无需另外调。 */
   :root {

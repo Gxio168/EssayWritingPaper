@@ -1,7 +1,7 @@
 /* ================= 答题纸 + 25 格网格 ================= */
 .paper {
   position: relative; /* hidden-input 的定位基准 */
-  background: #fff;
+  background: var(--surface);
   padding: 26px 30px 34px;
   border-radius: 3px;
   box-shadow: 0 8px 30px rgba(20, 30, 60, 0.13);
@@ -13,10 +13,10 @@
   font-family: 'Songti SC', 'SimSun', 'STSong', serif;
   font-size: 17px;
   letter-spacing: 6px;
-  color: #333;
+  color: var(--text);
   margin: 0 0 18px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #e2e6ec;
+  border-bottom: 1px solid var(--border-faint);
   text-align: center;
   white-space: nowrap;
 }
@@ -48,7 +48,7 @@
   width: max-content;
   border-top: 1px solid var(--line);
   border-left: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface);
 }
 .cell {
   border-right: 1px solid var(--line);
@@ -57,16 +57,16 @@
   font-size: calc(var(--cell) * 0.62);
   line-height: var(--cell);
   text-align: center;
-  color: #1b1b1b;
+  color: var(--grid-text);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
 }
 .cell.cur {
-  background: #e9f2ff;
+  background: var(--active-bg);
 }
 .cell.sel {
-  background: #cfe0ff;
+  background: var(--sel-bg);
 }
 
 /* 光标竖线：画在「下一个字要落进的格子」左缘 */

@@ -11,6 +11,7 @@ import { focusCaret } from '../grid/caret.js'
 import { renderList } from '../paper/library.js'
 import { guardUnsaved, loadPaper, newPaper, deletePaper } from '../paper/crud.js'
 import { exportData, importData } from '../backup/transfer.js'
+import { toggleTheme } from '../ui/theme.js'
 
 export function bindSidebarEvents() {
   dom.paperListEl.addEventListener('click', function (e) {
@@ -47,6 +48,7 @@ export function bindSidebarEvents() {
   })
 
   dom.newBtn.addEventListener('click', newPaper)
+  dom.themeBtn.addEventListener('click', toggleTheme)
   dom.exportBtn.addEventListener('click', exportData)
   dom.importBtn.addEventListener('click', function () {
     dom.importFile.click()

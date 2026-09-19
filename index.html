@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>申论答题纸 · 每行25格</title>
 
+    <!-- CSS 解析前先定主题，避免深色用户刷新时白屏闪烁 -->
+    <script>
+      try {
+        var __t = JSON.parse(localStorage.getItem('shenlun.prefs.v1') || '{}').theme
+        if (__t !== 'light' && __t !== 'dark') {
+          __t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        document.documentElement.dataset.theme = __t
+      } catch (e) {}
+    </script>
+
     <!-- 顺序即级联优先级，responsive.css 必须最后 -->
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/sidebar.css" />
@@ -18,6 +29,7 @@
       <div class="sb-head">
         <div class="sb-logo">申论<span>答题纸</span></div>
         <div class="sb-head-spacer"></div>
+        <button class="btn tiny" id="themeBtn" type="button" title="切换深色 / 浅色">🌙</button>
         <button class="btn tiny primary" id="newBtn" type="button">＋ 新建</button>
       </div>
 

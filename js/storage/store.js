@@ -75,6 +75,11 @@ function bytesToKB(bytes) {
   return Math.max(1, Math.round(bytes / 1024))
 }
 
+// 仅供单测：重置失败 toast 的限流窗口（模块级时间戳会跨测试残留）
+export function _resetFailToastForTest() {
+  lastFailToastAt = 0
+}
+
 // 警告条文案（纯函数，方便单测）：返回空串表示不需要显示
 export function storageWarnText(storageOK, usageKB) {
   if (!storageOK) {
@@ -90,18 +95,19 @@ export function storageWarnText(storageOK, usageKB) {
   return ''
 }
 
-// 只持久化排序。搜索词故意不存：下次打开时列表被上一轮的关键词筛着，
+// 持久化排序与主题。搜索词故意不存：下次打开时列表被上一轮的关键词筛着，
 // 会被当成"记录丢了"，而它几乎从不跨会话复用。
 export function loadPrefs() {
   try {
     const p = JSON.parse(localStorage.getItem(LS_PREFS) || '{}')
     if (p && typeof p.sort === 'string') app.sortMode = p.sort
+    if (p && (p.theme === 'light' || p.theme === 'dark')) app.theme = p.theme
   } catch (e) {}
 }
 
 export function savePrefs() {
   try {
-    localStorage.setItem(LS_PREFS, JSON.stringify({ sort: app.sortMode }))
+    localStorage.setItem(LS_PREFS, JSON.stringify({ sort: app.sortMode, theme: app.theme }))
   } catch (e) {}
 }
 

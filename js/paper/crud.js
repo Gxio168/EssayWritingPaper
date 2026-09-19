@@ -9,6 +9,7 @@
  *   stashHistory / restoreHistory。
  * - 新建路径会立刻 doSave 空答题纸，避免刷新丢失。 */
 
+import { COLS } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { esc, fmtTime, fmtStamp } from '../lib/format.js'

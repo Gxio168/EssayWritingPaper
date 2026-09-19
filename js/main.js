@@ -18,6 +18,7 @@ import { updateHeader } from './paper/header.js'
 import { renderList, sortedPapers } from './paper/library.js'
 import { askNewName, startFresh, doSave, loadPaper } from './paper/crud.js'
 import { toast } from './ui/toast.js'
+import { initTheme } from './ui/theme.js'
 import { bindGridEvents } from './events/grid.js'
 import { bindToolbarEvents } from './events/toolbar.js'
 import { bindSidebarEvents } from './events/sidebar.js'
@@ -26,6 +27,8 @@ import { bindGlobalEvents } from './events/global.js'
 function init() {
   checkStorage()
   loadPrefs()
+  // 主题要在偏好读取之后再应用，否则保存的深色选择永远不生效
+  initTheme()
 
   const store = loadStore()
   app.papers = store.papers
