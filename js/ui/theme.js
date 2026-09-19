@@ -26,6 +26,8 @@ function applyTheme(theme) {
       : 'light'
   }
   document.documentElement.dataset.theme = theme
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#16181d' : '#eef1f5')
   if (dom.themeBtn) {
     dom.themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙'
     dom.themeBtn.title = theme === 'dark' ? '切换到浅色' : '切换到深色'

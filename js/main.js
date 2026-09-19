@@ -19,6 +19,14 @@ import { renderList, sortedPapers } from './paper/library.js'
 import { askNewName, startFresh, doSave, loadPaper } from './paper/crud.js'
 import { toast } from './ui/toast.js'
 import { initTheme } from './ui/theme.js'
+
+// PWA：注册 Service Worker。需要 https 或 localhost，file:// 等环境跳过即可。
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return
+  navigator.serviceWorker.register('./sw.js').catch(function () {
+    // 注册失败不影响任何功能，只是没有离线缓存
+  })
+}
 import { bindGridEvents } from './events/grid.js'
 import { bindToolbarEvents } from './events/toolbar.js'
 import { bindSidebarEvents } from './events/sidebar.js'
@@ -61,6 +69,7 @@ function init() {
 }
 
 initDom()
+registerServiceWorker()
 bindGridEvents()
 bindToolbarEvents()
 bindSidebarEvents()

@@ -1,8 +1,9 @@
 # Essay Writing Paper · 申论答题纸
 
 > A web version of the Chinese civil service exam (申论 / *shenlun*) answer sheet
-> — a 25-cell grid per line that mimics the real answer booklet, with local
-> autosave, a paper library sidebar, sorting and full-text search.
+> — a 25-cell grid per line that mimics the real answer booklet, with a real
+> text cursor, local autosave, a paper library sidebar with sorting and
+> full-text search, dark mode and offline support.
 
 **🔗 Live demo: <https://gxio168.github.io/EssayWritingPaper/>**
 
@@ -22,7 +23,8 @@ review anytime.
 
 ### Writing grid
 - **25 cells per line**, adjustable from 1 to 200 lines; the total cell count and the
-  live character count are always shown.
+  live character count are always shown (whitespace doesn't count — a space is a blank
+  cell, not a written character).
 - **Real cursor & selection** — a text-editor caret (not a highlighted cell): click the
   left half of a cell to place the caret before it, the right half to place it after;
   drag across cells or double-click to select a run of characters; `Shift` + arrow keys
@@ -51,6 +53,9 @@ review anytime.
 - **Name it, then write** — every new paper asks for a name first and is written to
   storage immediately, so nothing can be lost by refreshing.
 - **Autosave** roughly 1.2 s after you stop typing, plus on tab switch and page close.
+  If a write fails (quota full or storage unavailable), you get a clear toast telling
+  you what to do — retries are rate-limited so they never spam you — and a warning
+  banner appears when the library passes ~80% of the estimated storage quota.
 - **Sidebar library** of every paper you have saved, showing name, character count and
   last-modified time; the paper you are editing is highlighted.
 - **Search by name or by answer text**, with the matching fragment highlighted in the
@@ -60,12 +65,18 @@ review anytime.
   empty so you never open the page to a list that looks half-empty.
 - **Rename** at any time, **delete** with a confirmation dialog that tells you exactly
   what is about to be removed.
-- **Reducing the line count asks first** if any text would be cut off — shrinking rows
-  invalidates undo, so the app never drops characters silently.
+- **Reducing the line count asks first** if any text would be cut off — and since undo
+  is snapshot-based, even that truncation can be taken back with `Ctrl + Z`.
 - **Export / import a JSON backup** of the whole library, so you can move between
   browsers or machines.
 
 ### Interface
+- **Dark mode** — toggle in the sidebar header; follows your system preference until
+  you pick a side, remembered across visits, no flash on refresh. Printing always
+  falls back to light.
+- **Installable & offline (PWA)** — add it to your desktop / home screen from the
+  browser's install prompt; every static asset is precached by a service worker, so
+  the page keeps working with no network at all.
 - Custom animated dialogs instead of the browser's native `confirm` / `prompt`.
 - Responsive: the sidebar collapses into a slide-in drawer on narrow screens.
 - Print-friendly — printing hides all UI and outputs only the answer paper.
@@ -129,12 +140,27 @@ self-explanatory:
 ## Data & privacy
 
 All content is stored locally in your browser's `localStorage` under the
-`shenlun.answerSheets.v1` key. Nothing is ever uploaded — there is no server, no account
+`shenlun.answerSheets.v1` key (your sort order and theme live in
+`shenlun.prefs.v1`). Nothing is ever uploaded — there is no server, no account
 and no analytics. Note that `localStorage` is scoped per browser and per origin, so a
 page served from `localhost` and the hosted URL keep **two separate libraries**;
 clearing your browser data, or using private/incognito mode, will lose the papers.
 
+If a save fails, the app tells you immediately with a specific message (quota full vs.
+storage unavailable) and keeps retrying in the background; when the library grows past
+~80% of the estimated ~5 MB quota, a warning banner in the sidebar suggests exporting a
+backup before anything is lost.
+
 For anything you care about, use **导出备份** to keep a JSON copy.
+
+## PWA & offline
+
+The site is an installable PWA. After the first visit, a service worker precaches every
+static file (HTML, CSS, JS, icons), so the page keeps working with the network fully
+off — all data lives in `localStorage` anyway. App updates propagate the same way:
+deploy, then reload the page twice (the new version is fetched in the background and
+served from the next load on). If you add or remove a static file, update the
+`PRECACHE` list and bump `CACHE_NAME` in `sw.js`.
 
 ## Project structure
 
