@@ -49,6 +49,18 @@ review anytime.
   past the state you opened the paper with, and shrinking the line count (which
   truncates the text) is itself undoable.
 
+### Draft pad (草稿板)
+- **Toggle it next to the paper** — the ✎ 草稿 button in the toolbar slides open a plain
+  free-text pad beside the answer grid (a right-side overlay on narrow screens), so you
+  can jot down outlines, keywords or half-formed sentences before transcribing them into
+  the grid.
+- **One pad per paper** — notes are keyed to the paper you are editing (and to your
+  unsaved draft before it gets a name, migrating automatically when you save), and are
+  autosaved to `localStorage` on every keystroke. Switch papers and the pad follows.
+- **Copy, don't retype** — ⧉ 复制 puts the whole note on the clipboard so you can paste
+  it into the grid (pasting strips line breaks, as everywhere else). Each pad is capped
+  at 2,000 characters; deleting a paper deletes its notes too.
+
 ### Local storage & paper library
 - **Name it, then write** — every new paper asks for a name first and is written to
   storage immediately, so nothing can be lost by refreshing.
@@ -119,6 +131,8 @@ self-explanatory:
 | 行数 | Number of lines (1–200) |
 | 答题纸名称 | Name of the current paper |
 | 保存 | Save now (autosave is already on) |
+| ⧉ 复制 | Copy the whole answer as plain text |
+| ✎ 草稿 | Show / hide the draft pad for the current paper |
 | 撤销 / 重做 | Undo / redo |
 | 清空全部 | Clear the current paper (undoable) |
 
@@ -140,8 +154,9 @@ self-explanatory:
 ## Data & privacy
 
 All content is stored locally in your browser's `localStorage` under the
-`shenlun.answerSheets.v1` key (your sort order and theme live in
-`shenlun.prefs.v1`). Nothing is ever uploaded — there is no server, no account
+`shenlun.answerSheets.v1` key (draft-pad notes live in `shenlun.notes.v1`, your
+sort order, theme and whether the pad was open in `shenlun.prefs.v1`). Nothing is
+ever uploaded — there is no server, no account
 and no analytics. Note that `localStorage` is scoped per browser and per origin, so a
 page served from `localhost` and the hosted URL keep **two separate libraries**;
 clearing your browser data, or using private/incognito mode, will lose the papers.

@@ -13,7 +13,7 @@
 
 ```bash
 python -m http.server 8000     # 或任意静态服务器
-npm test                       # 69 条单测（node:test，零依赖，Node 18+）
+npm test                       # 77 条单测（node:test，零依赖，Node 18+）
 ```
 
 **必须通过 HTTP 访问**：`index.html` 用 `<script type="module">` 加载 `js/main.js`，
@@ -71,6 +71,7 @@ CSS 用 `<link>` 加载，不受此限制。
 │   │   ├── header.js             标题区与保存按钮三态同步
 │   │   ├── autosave.js           markDirty / autosave
 │   │   ├── library.js            列表排序、搜索、渲染、角标刷新
+│   │   ├── note.js               草稿板：按答题纸存取的临时笔记 + 面板开关
 │   │   └── crud.js               保存 / 打开（含自愈扩行）/ 新建 / 删除 / 未保存拦截
 │   ├── backup/
 │   │   └── transfer.js           导出 / 导入 JSON 备份
@@ -85,6 +86,7 @@ CSS 用 `<link>` 加载，不受此限制。
     ├── lib.test.js               format + text（含 diffTexts）
     ├── grid-engine.test.js       engine / render 的语义锁定
     ├── undo.test.js              快照撤销 / baseline / 归档 / 缩行撤销
+    ├── note.test.js              草稿板笔记的清洗 / 键路由 / 上限裁剪
     └── storage.test.js           persist 失败路径 / 限流 / 容量告警 / 存档清洗
 ```
 
@@ -165,6 +167,8 @@ app.undoStack / redoStack    // 快照 { text, caret, anchor, rows }
 app.undoHistory              // 按答题纸 id 归档；未存档草稿用 DRAFT_KEY
 app.undoBaseline             // 本次打开的栈深：撤销不越过它
 app.theme                    // 'light' | 'dark' | ''（空 = 跟随系统）
+app.notes                    // 草稿板笔记 { [paperId | DRAFT_KEY]: 文本 }，取键与 undoHistory 一致
+app.draftOpen                // 草稿板面板是否展开（随偏好持久化）
 app.usageKB                  // 最近一次成功落盘的体积估算
 ```
 
@@ -219,11 +223,14 @@ app.usageKB                  // 最近一次成功落盘的体积估算
 | 事件只绑在 `#grid` / `#hiddenInput` / document 容器上做委托 | `events/*.js` | 重建网格后监听丢失 |
 | `dialog.js` 的 `app.dlgOpen` 互斥锁，以及「只还原仍 isConnected 的焦点元素」 | `ui/dialog.js` | 弹窗叠加；焦点落到已销毁的格子 |
 | persist 失败 toast 30s 限流（autosave 1.2s 重试一次） | `storage/store.js` | 保存失败时弹窗轰炸 |
+| 草稿板笔记的键路由：`stashNote()` 必须在 `app.activeId` 改变**之前**、`showNote()` 在之后；`doSave` 建档分支把 `DRAFT_KEY` 笔记迁到真 id | `paper/note.js` + `paper/crud.js` | 切纸丢笔记 / 建档后笔记凭空消失 |
 | 新增/删除静态文件必须同步 `sw.js` 的 `PRECACHE` 并递增 `CACHE_NAME` | `sw.js` | 新资源离线加载不到 |
 
 数据契约：`localStorage` 键 `shenlun.answerSheets.v1`
-（`{ version: 1, papers: [{ id, name, rows, data(稀疏 map), wordCount, createdAt, updatedAt }] }`）
-与 `shenlun.prefs.v1`（`{ sort, theme }`）。`data` 允许含空格字符；
+（`{ version: 1, papers: [{ id, name, rows, data(稀疏 map), wordCount, createdAt, updatedAt }] }`）、
+`shenlun.prefs.v1`（`{ sort, theme, draftOpen }`）与
+`shenlun.notes.v1`（`{ [paperId | DRAFT_KEY]: 草稿板文本 }`，单份上限 `NOTE_MAX_LEN`）。
+`data` 允许含空格字符；
 `wordCount` 不含空白。旧数据无需迁移，`loadPaper` 的自愈逻辑兜底。
 
 ---

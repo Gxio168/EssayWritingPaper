@@ -17,6 +17,7 @@ import { undo, redo } from '../grid/undo.js'
 import { focusCaret } from '../grid/caret.js'
 import { updateHeader } from '../paper/header.js'
 import { savePaper } from '../paper/crud.js'
+import { toggleDraftPanel, setDraftPanel, onNoteInput, copyNote } from '../paper/note.js'
 
 export function bindToolbarEvents() {
   dom.rowsInput.addEventListener('change', function () {
@@ -51,6 +52,16 @@ export function bindToolbarEvents() {
   dom.copyBtn.addEventListener('click', function () {
     copyText()
   })
+
+  /* ---------- 草稿板 ---------- */
+
+  dom.draftBtn.addEventListener('click', toggleDraftPanel)
+  dom.draftCloseBtn.addEventListener('click', function () {
+    setDraftPanel(false)
+    dom.hiddenInput.focus()
+  })
+  dom.draftCopyBtn.addEventListener('click', copyNote)
+  dom.draftInput.addEventListener('input', onNoteInput)
 
   dom.undoBtn.addEventListener('click', function () {
     undo()

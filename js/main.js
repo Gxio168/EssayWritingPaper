@@ -11,12 +11,13 @@
 import { COLS } from './config.js'
 import { app } from './state.js'
 import { dom, initDom } from './dom.js'
-import { checkStorage, loadPrefs, loadStore } from './storage/store.js'
+import { checkStorage, loadPrefs, loadStore, loadNotes } from './storage/store.js'
 import { buildDOM } from './grid/build.js'
 import { focusCaret } from './grid/caret.js'
 import { updateHeader } from './paper/header.js'
 import { renderList, sortedPapers } from './paper/library.js'
 import { askNewName, startFresh, doSave, loadPaper } from './paper/crud.js'
+import { setDraftPanel, showNote, syncNotesWithLibrary } from './paper/note.js'
 import { toast } from './ui/toast.js'
 import { initTheme } from './ui/theme.js'
 
@@ -40,6 +41,8 @@ function init() {
 
   const store = loadStore()
   app.papers = store.papers
+  loadNotes()
+  syncNotesWithLibrary() // 清掉已删答题纸留下的孤儿笔记
 
   dom.sortSelect.value = app.sortMode
 
@@ -47,6 +50,8 @@ function init() {
   document.documentElement.style.setProperty('--cols', String(COLS))
   app.text = ''
   buildDOM()
+  setDraftPanel(app.draftOpen)
+  showNote()
 
   updateHeader()
   renderList()

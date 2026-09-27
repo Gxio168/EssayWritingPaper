@@ -35,6 +35,8 @@ export const app = {
   usageKB: 0, // 最近一次成功落盘的库体积估算（KB），超阈值时侧边栏告警
   papers: [], // 已保存的答题纸记录（不含当前未保存草稿）
   activeId: null, // 当前答题纸 id（未保存时为 null，不出现在 papers 里）
+  notes: {}, // 草稿板笔记：{ [paperId | DRAFT_KEY]: 文本 }，跟随答题纸
+  draftOpen: false, // 草稿板面板是否展开（随偏好持久化）
   dirty: false, // 有未保存的改动
   saveTimer: null, // 自动保存防抖定时器
   skipNameDirty: false, // 程序性回填名称输入框时不触发脏标记

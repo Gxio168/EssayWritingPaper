@@ -9,7 +9,7 @@
  * 注意：全部用相对路径，兼容 GitHub Pages 的 /EssayWritingPaper/ 子路径部署。
  * localStorage 里的用户数据不经过 SW，不受任何影响。 */
 
-const CACHE_NAME = 'shenlun-v1'
+const CACHE_NAME = 'shenlun-v2'
 
 const PRECACHE = [
   './',
@@ -45,6 +45,7 @@ const PRECACHE = [
   './js/paper/library.js',
   './js/paper/crud.js',
   './js/paper/header.js',
+  './js/paper/note.js',
   './js/backup/transfer.js',
   './js/events/grid.js',
   './js/events/toolbar.js',

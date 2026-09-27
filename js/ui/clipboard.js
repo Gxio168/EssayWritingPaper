@@ -42,16 +42,14 @@ function copyViaTextarea(str) {
   return ok
 }
 
-// 把当前答题纸的内容以纯文本放进剪贴板，之后可以直接 Ctrl+V 粘贴
-export function copyText() {
-  const str = app.text
+// 通用出口：把任意字符串送进剪贴板，空内容 / 成功 / 失败各给一条消息
+export function copyString(str, emptyMsg, okMsg) {
   if (!str.length) {
-    toast('这张答题纸还是空的，没有可复制的内容')
+    toast(emptyMsg)
     return
   }
-
   const done = function () {
-    toast('已复制 ' + countChars(str) + ' 个字，可以直接 Ctrl+V 粘贴')
+    toast(okMsg)
   }
   const fallback = function () {
     if (copyViaTextarea(str)) done()
@@ -63,4 +61,13 @@ export function copyText() {
   } else {
     fallback()
   }
+}
+
+// 把当前答题纸的内容以纯文本放进剪贴板，之后可以直接 Ctrl+V 粘贴
+export function copyText() {
+  copyString(
+    app.text,
+    '这张答题纸还是空的，没有可复制的内容',
+    '已复制 ' + countChars(app.text) + ' 个字，可以直接 Ctrl+V 粘贴'
+  )
 }

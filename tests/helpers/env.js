@@ -76,6 +76,9 @@ export function setupEnv(cellCount) {
   dom.rowsInput = { value: '40' }
   dom.nameInput = { value: '' }
   dom.storageWarn = { style: {}, textContent: '' }
+  dom.draftInput = { value: '' }
+  dom.draftPanel = { classList: classListStub() }
+  dom.draftBtn = { classList: classListStub() }
 
   // 隐藏 textarea 桩：值 + 选区，行为与真 textarea 对齐
   dom.hiddenInput = {
@@ -116,6 +119,8 @@ export function setupEnv(cellCount) {
   app.undoBaseline = 0
   app.papers = []
   app.activeId = null
+  app.notes = {}
+  app.draftOpen = false
   app.dirty = false
   clearTimeout(app.saveTimer)
   app.saveTimer = null

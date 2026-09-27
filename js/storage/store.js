@@ -7,7 +7,7 @@
  * 2. 侧边栏警告条 —— 存储不可用，或占用超过估满值的 80%；
  * 3. app.storageOK / app.usageKB —— 供其它模块查询。 */
 
-import { LS_KEY, LS_PREFS } from '../config.js'
+import { LS_KEY, LS_PREFS, LS_NOTES } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { toast } from '../ui/toast.js'
@@ -95,20 +95,61 @@ export function storageWarnText(storageOK, usageKB) {
   return ''
 }
 
-// 持久化排序与主题。搜索词故意不存：下次打开时列表被上一轮的关键词筛着，
+// 持久化排序、主题与草稿板开关状态。搜索词故意不存：下次打开时列表被上一轮的关键词筛着，
 // 会被当成"记录丢了"，而它几乎从不跨会话复用。
 export function loadPrefs() {
   try {
     const p = JSON.parse(localStorage.getItem(LS_PREFS) || '{}')
     if (p && typeof p.sort === 'string') app.sortMode = p.sort
     if (p && (p.theme === 'light' || p.theme === 'dark')) app.theme = p.theme
+    if (p && typeof p.draftOpen === 'boolean') app.draftOpen = p.draftOpen
   } catch (e) {}
 }
 
 export function savePrefs() {
   try {
-    localStorage.setItem(LS_PREFS, JSON.stringify({ sort: app.sortMode, theme: app.theme }))
+    localStorage.setItem(
+      LS_PREFS,
+      JSON.stringify({ sort: app.sortMode, theme: app.theme, draftOpen: app.draftOpen })
+    )
   } catch (e) {}
+}
+
+/* ---------------- 草稿板笔记（app.notes: { [paperId | DRAFT_KEY]: 文本 }） ---------------- */
+
+export function loadNotes() {
+  try {
+    const raw = localStorage.getItem(LS_NOTES)
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return
+    // 清洗：只留非空字符串值
+    const notes = {}
+    for (const k of Object.keys(data)) {
+      if (typeof data[k] === 'string' && data[k]) notes[k] = data[k]
+    }
+    app.notes = notes
+  } catch (e) {}
+}
+
+export function persistNotes() {
+  try {
+    localStorage.setItem(LS_NOTES, JSON.stringify(app.notes))
+    return true
+  } catch (e) {
+    // 不重复弹 toast：配额问题的用户反馈由主库 persist() 负责，
+    // 主库还能写时笔记会在下一次成功落盘时跟上
+    return false
+  }
+}
+
+// 纯函数：只保留 validKeys 里的键（含 DRAFT_KEY），清掉已删答题纸的孤儿笔记
+export function pruneNotes(notes, validKeys) {
+  const out = {}
+  for (const k of Object.keys(notes)) {
+    if (validKeys.has(k)) out[k] = notes[k]
+  }
+  return out
 }
 
 export function checkStorage() {

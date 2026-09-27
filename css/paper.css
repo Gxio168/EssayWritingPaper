@@ -1,4 +1,15 @@
 /* ================= 答题纸 + 25 格网格 ================= */
+
+/* 工作区：答题纸与草稿板并排；草稿关闭时面板不占位，纸面自然居中 */
+.stage {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+}
+
 .paper {
   position: relative; /* hidden-input 的定位基准 */
   background: var(--surface);
@@ -83,4 +94,55 @@
   50% {
     opacity: 0;
   }
+}
+
+/* ================= 草稿板（跟随答题纸的临时笔记） ================= */
+.draft-panel {
+  display: none;
+  flex: 0 0 300px;
+  width: 300px;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 3px;
+  box-shadow: 0 8px 30px rgba(20, 30, 60, 0.13);
+  padding: 16px;
+}
+.draft-panel.open {
+  display: flex;
+}
+.draft-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.draft-title {
+  font-family: 'Songti SC', 'SimSun', 'STSong', serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--heading);
+}
+.draft-head-spacer {
+  flex: 1;
+}
+#draftInput {
+  flex: 1;
+  min-height: 360px;
+  resize: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.8;
+  outline: none;
+}
+#draftInput:focus {
+  border-color: var(--accent);
+}
+#draftInput::placeholder {
+  color: var(--muted);
 }

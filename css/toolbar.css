@@ -84,6 +84,11 @@
   color: #fff;
   font-weight: 600;
 }
+/* 开关类按钮的按下态（如草稿板） */
+.btn.active {
+  background: var(--active-bg);
+  border-color: var(--active-border);
+}
 .btn.primary:hover:not(:disabled) {
   background: var(--accent-dark);
   border-color: var(--accent-dark);

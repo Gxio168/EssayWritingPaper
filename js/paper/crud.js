@@ -9,7 +9,7 @@
  *   stashHistory / restoreHistory。
  * - 新建路径会立刻 doSave 空答题纸，避免刷新丢失。 */
 
-import { COLS } from '../config.js'
+import { COLS, DRAFT_KEY } from '../config.js'
 import { app } from '../state.js'
 import { dom } from '../dom.js'
 import { esc, fmtTime, fmtStamp } from '../lib/format.js'
@@ -26,6 +26,7 @@ import { buildCurrent, findPaper, isSaved } from './model.js'
 import { autosave } from './autosave.js'
 import { updateHeader } from './header.js'
 import { renderList } from './library.js'
+import { stashNote, showNote, moveNote, dropNote } from './note.js'
 
 // 切换/新建前处理未保存内容：已存档的自动落盘，未存档草稿需用户确认
 export function guardUnsaved(actionLabel) {
@@ -52,11 +53,13 @@ export function guardUnsaved(actionLabel) {
 }
 
 export function doSave(name) {
+  stashNote() // 建档会改 activeId：先把面板写回旧键
   let p = app.activeId ? findPaper(app.activeId) : null
   if (!p) {
     p = buildCurrent(name)
     app.papers.push(p)
     app.activeId = p.id
+    moveNote(DRAFT_KEY, p.id) // 未存档期间的草稿板笔记随建档升级成真 id 名下
   } else {
     p.name = name
     p.rows = app.rows
@@ -110,6 +113,7 @@ export function loadPaper(id) {
   if (!p) return
   if (p.id === app.activeId) return
   stashHistory()
+  stashNote()
 
   const n = Math.max(1, Math.min(200, p.rows || 40))
   const text = sparseToText(p.data)
@@ -133,6 +137,7 @@ export function loadPaper(id) {
   updateHeader()
   renderList()
   setDrawer(false)
+  showNote()
   focusCaret(0)
   toast('已打开「' + p.name + '」')
 }
@@ -140,6 +145,7 @@ export function loadPaper(id) {
 // 把编辑区重置成一张干净的新答题纸（不涉及保存）
 export function startFresh(name) {
   stashHistory()
+  stashNote()
 
   clearTimeout(app.saveTimer)
   app.rows = parseInt(dom.rowsInput.value, 10) || app.rows || 40
@@ -158,6 +164,7 @@ export function startFresh(name) {
   updateHeader()
   renderList()
   setDrawer(false)
+  showNote()
   focusCaret(0)
 }
 
@@ -224,6 +231,7 @@ export function deletePaper(id) {
     } else {
       toast('已删除「' + p.name + '」')
     }
+    dropNote(id) // 记录删了，它名下的草稿板笔记也不再保留（startFresh 先暂存、这里清掉）
     persist()
     updateHeader()
     renderList()

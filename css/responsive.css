@@ -31,6 +31,21 @@
   .stat {
     margin-left: 0;
   }
+  /* 窄屏没有并排空间：草稿板改为右侧滑出浮层（高于侧边栏抽屉） */
+  .draft-panel.open {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 210;
+    width: min(340px, 92vw);
+    flex: none;
+    border-radius: 0;
+    box-shadow: -8px 0 24px rgba(20, 30, 60, 0.18);
+  }
+  #draftInput {
+    min-height: 0;
+  }
 }
 
 /* 触摸设备没有 hover，而 .pi-del 默认 display:none、只在 hover/active 时出现，
@@ -66,6 +81,7 @@
   .sidebar,
   .backdrop,
   .toolbar,
+  .draft-panel,
   #toast,
   #modal,
   .caret,
@@ -75,6 +91,9 @@
   .main {
     margin-left: 0;
     padding: 0;
+    display: block;
+  }
+  .stage {
     display: block;
   }
   .paper {

@@ -93,6 +93,7 @@
         >
           ⧉ 复制
         </button>
+        <button class="btn" id="draftBtn" type="button" title="打开 / 关闭草稿板（临时笔记，跟随当前答题纸）">✎ 草稿</button>
         <div class="divider"></div>
         <button class="btn" id="undoBtn" type="button" title="Ctrl + Z">↶ 撤销</button>
         <button class="btn" id="redoBtn" type="button" title="Ctrl + Shift + Z / Ctrl + Y">
@@ -103,20 +104,39 @@
         <span class="stat" id="stat">0 / 1000 字</span>
       </div>
 
-      <div class="paper">
-        <h1 class="paper-title" id="paperTitle">申论答题纸</h1>
-        <!-- 隐藏的输入宿主：格子语义（光标/选区/退格/IME/粘贴）全部交给
-             textarea 原生处理，#grid 只负责按 25 字折行铺字 -->
-        <textarea
-          id="hiddenInput"
-          class="hidden-input"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-          aria-label="答题纸输入区"
-        ></textarea>
-        <div id="grid"></div>
+      <div class="stage">
+        <div class="paper">
+          <h1 class="paper-title" id="paperTitle">申论答题纸</h1>
+          <!-- 隐藏的输入宿主：格子语义（光标/选区/退格/IME/粘贴）全部交给
+               textarea 原生处理，#grid 只负责按 25 字折行铺字 -->
+          <textarea
+            id="hiddenInput"
+            class="hidden-input"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="答题纸输入区"
+          ></textarea>
+          <div id="grid"></div>
+        </div>
+
+        <!-- 草稿板：普通自由文本，不进网格引擎；内容按答题纸存 localStorage -->
+        <aside class="draft-panel" id="draftPanel">
+          <div class="draft-head">
+            <span class="draft-title">草稿板</span>
+            <div class="draft-head-spacer"></div>
+            <button class="btn tiny" id="draftCopyBtn" type="button" title="复制草稿全文">⧉ 复制</button>
+            <button class="btn tiny" id="draftCloseBtn" type="button" title="关闭草稿板">✕</button>
+          </div>
+          <textarea
+            id="draftInput"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="临时笔记、提纲、关键词…自动保存，誊写进正文后可清空。"
+            aria-label="草稿板"
+          ></textarea>
+        </aside>
       </div>
     </div>
 
